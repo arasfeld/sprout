@@ -1,23 +1,30 @@
 import {
   DarkTheme,
   DefaultTheme,
-  ThemeProvider,
+  ThemeProvider as NavigationThemeProvider,
 } from '@react-navigation/native';
 import { Stack } from 'expo-router';
 import { StatusBar } from 'expo-status-bar';
+import React, { useMemo } from 'react';
 import 'react-native-reanimated';
 
+import { ThemeProvider as AppThemeProvider } from '@/components/theme-context';
 import { useTheme } from '@/hooks/use-theme';
 
 export const unstable_settings = {
   anchor: '(tabs)',
 };
 
-export default function RootLayout() {
+function Inner() {
   const { mode } = useTheme();
 
+  const navigationTheme = useMemo(
+    () => (mode === 'dark' ? DarkTheme : DefaultTheme),
+    [mode],
+  );
+
   return (
-    <ThemeProvider value={mode === 'dark' ? DarkTheme : DefaultTheme}>
+    <NavigationThemeProvider value={navigationTheme}>
       <Stack>
         <Stack.Screen name="(tabs)" options={{ headerShown: false }} />
         <Stack.Screen
@@ -26,6 +33,14 @@ export default function RootLayout() {
         />
       </Stack>
       <StatusBar style="auto" />
-    </ThemeProvider>
+    </NavigationThemeProvider>
+  );
+}
+
+export default function RootLayout() {
+  return (
+    <AppThemeProvider>
+      <Inner />
+    </AppThemeProvider>
   );
 }
