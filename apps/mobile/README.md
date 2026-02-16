@@ -1,50 +1,124 @@
-# Welcome to your Expo app 👋
+# Sprout Mobile
 
-This is an [Expo](https://expo.dev) project created with [`create-expo-app`](https://www.npmjs.com/package/create-expo-app).
+The React Native mobile app for Sprout, built with Expo SDK 54, React 19, and React Native 0.81.
 
-## Get started
+This is the primary client for the Sprout childcare tracking system. Parents, caregivers, and daycare staff use this app to view and log events on a child's shared timeline.
 
-1. Install dependencies
+## Current Status
 
-   ```bash
-   npm install
-   ```
+The UI is under active development. Screens and feature flows are being built with mock/local data. Backend integration via Supabase is being introduced incrementally.
 
-2. Start the app
+## Folder Structure
 
-   ```bash
-   npx expo start
-   ```
-
-In the output, you'll find options to open the app in a
-
-- [development build](https://docs.expo.dev/develop/development-builds/introduction/)
-- [Android emulator](https://docs.expo.dev/workflow/android-studio-emulator/)
-- [iOS simulator](https://docs.expo.dev/workflow/ios-simulator/)
-- [Expo Go](https://expo.dev/go), a limited sandbox for trying out app development with Expo
-
-You can start developing by editing the files inside the **app** directory. This project uses [file-based routing](https://docs.expo.dev/router/introduction).
-
-## Get a fresh project
-
-When you're ready, run:
-
-```bash
-npm run reset-project
+```
+apps/mobile/
+  app/                  → Expo Router file-based routing
+    _layout.tsx         → Root layout
+    modal.tsx           → Modal screen
+    (tabs)/             → Tab group
+      _layout.tsx       → Tab navigator layout
+      index.tsx         → Home tab
+      explore.tsx       → Explore tab
+      settings.tsx      → Settings tab
+  components/
+    ui/                 → Reusable UI primitives (Button, Text, Icon, etc.)
+    theme-context.tsx   → React Context theme provider
+    ...                 → App-level components
+  constants/
+    theme.ts            → Design tokens (colors, typography, spacing, radius)
+  hooks/
+    use-theme.ts        → Theme access hook
+    use-theme.web.ts    → Web-specific theme hook
+    use-color-scheme.ts → System color scheme detection
+    use-color-scheme.web.ts → Web-specific color scheme detection
+  services/
+    storage.ts          → AsyncStorage wrapper
+  types/
+    preferences.ts      → Domain type definitions
+  utils/
+    color.ts            → Color utility functions
 ```
 
-This command will move the starter code to the **app-example** directory and create a blank **app** directory where you can start developing.
+## Design System
 
-## Learn more
+This app uses a **shadcn-inspired design system** adapted for React Native. All UI is built with semantic design tokens — no hardcoded colors or typography values.
 
-To learn more about developing your project with Expo, look at the following resources:
+### Theme File
 
-- [Expo documentation](https://docs.expo.dev/): Learn fundamentals, or go into advanced topics with our [guides](https://docs.expo.dev/guides).
-- [Learn Expo tutorial](https://docs.expo.dev/tutorial/introduction/): Follow a step-by-step tutorial where you'll create a project that runs on Android, iOS, and the web.
+`constants/theme.ts` is the single source of truth for all design tokens:
 
-## Join the community
+- **Colors:** Semantic tokens (background, foreground, primary, secondary, muted, accent, destructive, border, input, ring, card, popover) defined for both light and dark modes
+- **Typography:** Font families, sizes, weights, and line heights
+- **Spacing:** Consistent spacing scale
+- **Radius:** Border radius tokens
 
-Join our community of developers creating universal apps.
+### Theme Provider
 
-- [Expo on GitHub](https://github.com/expo/expo): View our open source platform and contribute.
-- [Discord community](https://chat.expo.dev): Chat with Expo users and ask questions.
+`components/theme-context.tsx` wraps the app in a React Context provider that supplies the current theme (light or dark) to all descendant components.
+
+### `useTheme()` Hook
+
+The `useTheme()` hook (from `hooks/use-theme.ts`) is the **only way** components should access design tokens. It returns the current theme object, which includes all color, typography, spacing, and radius tokens.
+
+```tsx
+import { useTheme } from '@/hooks/use-theme';
+
+function MyComponent() {
+  const { colors, typography, spacing } = useTheme();
+
+  return (
+    <View style={{ backgroundColor: colors.background, padding: spacing[4] }}>
+      <Text style={{ color: colors.foreground }}>Hello</Text>
+    </View>
+  );
+}
+```
+
+Platform-specific variants (`use-theme.web.ts`, `use-color-scheme.web.ts`) handle web platform differences automatically.
+
+### UI Components
+
+All reusable UI primitives live in `components/ui/`:
+
+| Component | File | Description |
+|---|---|---|
+| Button | `button.tsx` | Pressable button with variant/size props |
+| Text | `text.tsx` | Themed text with typography variants |
+| Icon | `icon-symbol.tsx` | SF Symbols (iOS) and Material Icons |
+| Collapsible | `collapsible.tsx` | Expandable/collapsible content |
+| Segmented Control | `segmented-control.tsx` | Tab-like segmented selector |
+
+#### Building new UI components
+
+1. Create the file in `components/ui/`
+2. Import and use `useTheme()` for all styling
+3. Use semantic tokens — never hardcode colors or font sizes
+4. Follow shadcn-style prop patterns (`variant`, `size`, etc.)
+5. Keep components composable and focused on a single responsibility
+
+**Placement rule:** Reusable UI goes in `components/ui/`. Feature-specific UI stays local to the feature directory.
+
+## Routing
+
+This app uses [Expo Router](https://docs.expo.dev/router/introduction/) for file-based routing with typed routes.
+
+- Routes are defined by the file structure inside `app/`
+- Group routes use parentheses: `(tabs)/` groups tab screens without adding a URL segment
+- Each route group has a `_layout.tsx` defining its navigator
+
+## Data
+
+Currently using **mock/local data**. Domain types are defined in `types/`. User preferences are persisted locally via AsyncStorage (`services/storage.ts`).
+
+When connected, this app will talk directly to Supabase — no custom API server. Supabase Realtime will power live timeline updates. See [docs/architecture.md](../../docs/architecture.md) for the full data model.
+
+## Development
+
+```bash
+# From the monorepo root:
+pnpm --filter @sprout/mobile dev       # Start Expo dev server
+pnpm --filter @sprout/mobile ios       # Run on iOS Simulator
+pnpm --filter @sprout/mobile android   # Run on Android Emulator
+pnpm --filter @sprout/mobile lint      # Lint
+pnpm --filter @sprout/mobile check-types  # Type-check
+```
