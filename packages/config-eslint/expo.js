@@ -1,18 +1,19 @@
-import js from '@eslint/js';
+import expoConfig from 'eslint-config-expo/flat.js';
 import eslintConfigPrettier from 'eslint-config-prettier';
 import onlyWarn from 'eslint-plugin-only-warn';
+import eslintPluginPrettier from 'eslint-plugin-prettier/recommended';
 import turboPlugin from 'eslint-plugin-turbo';
-import tseslint from 'typescript-eslint';
+import { globalIgnores } from 'eslint/config';
 
 /**
- * A shared ESLint configuration for the repository.
+ * A custom ESLint configuration for Expo/React Native apps.
  *
  * @type {import("eslint").Linter.Config[]}
  * */
 export const config = [
-  js.configs.recommended,
+  ...expoConfig,
+  eslintPluginPrettier,
   eslintConfigPrettier,
-  ...tseslint.configs.recommended,
   {
     plugins: {
       turbo: turboPlugin,
@@ -26,7 +27,5 @@ export const config = [
       onlyWarn,
     },
   },
-  {
-    ignores: ['dist/**'],
-  },
+  globalIgnores(['dist/**']),
 ];

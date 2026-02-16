@@ -16,11 +16,9 @@ This Turborepo includes the following packages/apps:
 
 ### Apps and Packages
 
-- `docs`: a [Next.js](https://nextjs.org/) app
-- `web`: another [Next.js](https://nextjs.org/) app
-- `@repo/config-eslint`: `eslint` configurations (includes `eslint-config-next` and `eslint-config-prettier`)
+- `mobile`: React Native app built with Expo Router and TypeScript
+- `@repo/config-eslint`: `eslint` configurations (includes `eslint-config-expo` and `eslint-config-prettier`)
 - `@repo/config-typescript`: `tsconfig.json`s used throughout the monorepo
-- `@repo/ui`: a stub React component library shared by both `web` and `docs` applications
 
 Each package/app is 100% [TypeScript](https://www.typescriptlang.org/).
 
