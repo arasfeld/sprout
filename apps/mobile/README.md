@@ -80,13 +80,13 @@ Platform-specific variants (`use-theme.web.ts`, `use-color-scheme.web.ts`) handl
 
 All reusable UI primitives live in `components/ui/`:
 
-| Component | File | Description |
-|---|---|---|
-| Button | `button.tsx` | Pressable button with variant/size props |
-| Text | `text.tsx` | Themed text with typography variants |
-| Icon | `icon-symbol.tsx` | SF Symbols (iOS) and Material Icons |
-| Collapsible | `collapsible.tsx` | Expandable/collapsible content |
-| Segmented Control | `segmented-control.tsx` | Tab-like segmented selector |
+| Component         | File                    | Description                              |
+| ----------------- | ----------------------- | ---------------------------------------- |
+| Button            | `button.tsx`            | Pressable button with variant/size props |
+| Text              | `text.tsx`              | Themed text with typography variants     |
+| Icon              | `icon-symbol.tsx`       | SF Symbols (iOS) and Material Icons      |
+| Collapsible       | `collapsible.tsx`       | Expandable/collapsible content           |
+| Segmented Control | `segmented-control.tsx` | Tab-like segmented selector              |
 
 #### Building new UI components
 

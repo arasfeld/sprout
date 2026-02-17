@@ -30,25 +30,25 @@ Clients talk directly to [Supabase](https://supabase.com). There is no Express/F
 
 ### Supabase Stack
 
-| Service | Purpose |
-|---|---|
-| Supabase Auth | User registration, login, sessions |
-| Postgres + RLS | Database with row-level access control |
-| Supabase Storage | Photo uploads |
-| Supabase Realtime | Live timeline updates |
-| Edge Functions | Server-side logic when needed (future) |
+| Service           | Purpose                                |
+| ----------------- | -------------------------------------- |
+| Supabase Auth     | User registration, login, sessions     |
+| Postgres + RLS    | Database with row-level access control |
+| Supabase Storage  | Photo uploads                          |
+| Supabase Realtime | Live timeline updates                  |
+| Edge Functions    | Server-side logic when needed (future) |
 
 ### Data Model (Summary)
 
-| Table | Purpose |
-|---|---|
-| `users` | Managed by Supabase Auth |
-| `children` | Child profiles |
-| `child_memberships` | Links users to children with roles + optional org context |
-| `organizations` | Daycares and care organizations |
-| `organization_members` | Links users to organizations with roles |
-| `child_organizations` | Links children to organizations |
-| `events` | All activity (nap, meal, diaper, note, message) |
+| Table                  | Purpose                                                   |
+| ---------------------- | --------------------------------------------------------- |
+| `users`                | Managed by Supabase Auth                                  |
+| `children`             | Child profiles                                            |
+| `child_memberships`    | Links users to children with roles + optional org context |
+| `organizations`        | Daycares and care organizations                           |
+| `organization_members` | Links users to organizations with roles                   |
+| `child_organizations`  | Links children to organizations                           |
+| `events`               | All activity (nap, meal, diaper, note, message)           |
 
 See [docs/architecture.md](docs/architecture.md) for the full data model, entity relationships, and RLS philosophy.
 
@@ -74,17 +74,17 @@ Currently, only `apps/mobile` and the config packages are active.
 
 ## Tech Stack
 
-| Layer | Technology |
-|---|---|
-| Mobile app | Expo SDK 54, React Native 0.81, React 19 |
-| Routing | Expo Router (file-based) |
-| Language | TypeScript (strict mode) |
-| Monorepo | Turborepo + pnpm workspaces |
-| Design system | shadcn-inspired tokens + `useTheme()` hook |
-| Backend | Supabase (Postgres, Auth, Storage, Realtime) |
-| Client caching | TanStack Query (optional, alongside Supabase) |
-| Linting | ESLint with TypeScript, React, and Turbo plugins |
-| Formatting | Prettier |
+| Layer          | Technology                                       |
+| -------------- | ------------------------------------------------ |
+| Mobile app     | Expo SDK 54, React Native 0.81, React 19         |
+| Routing        | Expo Router (file-based)                         |
+| Language       | TypeScript (strict mode)                         |
+| Monorepo       | Turborepo + pnpm workspaces                      |
+| Design system  | shadcn-inspired tokens + `useTheme()` hook       |
+| Backend        | Supabase (Postgres, Auth, Storage, Realtime)     |
+| Client caching | TanStack Query (optional, alongside Supabase)    |
+| Linting        | ESLint with TypeScript, React, and Turbo plugins |
+| Formatting     | Prettier                                         |
 
 ## Getting Started
 
@@ -110,14 +110,14 @@ pnpm --filter @sprout/mobile android
 
 ### All Commands
 
-| Command | Description |
-|---|---|
-| `pnpm dev` | Start all apps in dev mode |
-| `pnpm build` | Build all packages/apps |
-| `pnpm lint` | Lint all packages/apps |
-| `pnpm check-types` | Type-check all packages/apps |
-| `pnpm format` | Format all files with Prettier |
-| `pnpm clean` | Clean build artifacts and node_modules |
+| Command            | Description                            |
+| ------------------ | -------------------------------------- |
+| `pnpm dev`         | Start all apps in dev mode             |
+| `pnpm build`       | Build all packages/apps                |
+| `pnpm lint`        | Lint all packages/apps                 |
+| `pnpm check-types` | Type-check all packages/apps           |
+| `pnpm format`      | Format all files with Prettier         |
+| `pnpm clean`       | Clean build artifacts and node_modules |
 
 ## Design System
 

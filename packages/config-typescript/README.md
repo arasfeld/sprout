@@ -1,4 +1,4 @@
-# @repo/config-typescript
+# @sprout/config-typescript
 
 Shared TypeScript configurations for the Sprout monorepo.
 
@@ -8,9 +8,9 @@ This package provides reusable `tsconfig.json` base configs that enforce consist
 
 ## Available Configs
 
-| File | Description |
-|---|---|
-| `base.json` | Base TypeScript config with strict mode enabled |
+| File        | Description                                      |
+| ----------- | ------------------------------------------------ |
+| `base.json` | Base TypeScript config with strict mode enabled  |
 | `expo.json` | Extends base with Expo and React Native settings |
 
 ## Usage
@@ -19,7 +19,7 @@ In your app or package's `tsconfig.json`:
 
 ```json
 {
-  "extends": "@repo/config-typescript/base.json"
+  "extends": "@sprout/config-typescript/base.json"
 }
 ```
 
@@ -27,7 +27,7 @@ Or for Expo apps:
 
 ```json
 {
-  "extends": "@repo/config-typescript/expo.json"
+  "extends": "@sprout/config-typescript/expo.json"
 }
 ```
 

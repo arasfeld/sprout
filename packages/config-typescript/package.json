@@ -1,5 +1,5 @@
 {
-  "name": "@repo/config-typescript",
+  "name": "@sprout/config-typescript",
   "version": "0.0.0",
   "private": true,
   "license": "MIT",

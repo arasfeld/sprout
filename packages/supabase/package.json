@@ -1,0 +1,21 @@
+{
+  "name": "@sprout/supabase",
+  "version": "0.0.0",
+  "private": true,
+  "main": "dist/index.js",
+  "types": "dist/index.d.ts",
+  "scripts": {
+    "build": "tsc",
+    "check-types": "tsc --noEmit",
+    "clean": "rm -rf dist node_modules",
+    "lint": "eslint src --ext ts,tsx"
+  },
+  "dependencies": {
+    "@supabase/supabase-js": "^2.95.3"
+  },
+  "devDependencies": {
+    "@sprout/config-typescript": "workspace:*",
+    "@types/node": "^20.0.0",
+    "typescript": "5.9.2"
+  }
+}

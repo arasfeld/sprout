@@ -1,4 +1,4 @@
-# @repo/config-eslint
+# @sprout/config-eslint
 
 Shared ESLint configurations for the Sprout monorepo.
 
@@ -8,17 +8,17 @@ This package provides reusable ESLint configs that enforce consistent code quali
 
 ## Available Configs
 
-| Export | File | Description |
-|---|---|---|
-| `@repo/config-eslint/base` | `base.js` | Base config with TypeScript, React, Prettier, and Turbo plugins |
-| `@repo/config-eslint/expo` | `expo.js` | Extends base with Expo-specific rules |
+| Export                       | File      | Description                                                     |
+| ---------------------------- | --------- | --------------------------------------------------------------- |
+| `@sprout/config-eslint/base` | `base.js` | Base config with TypeScript, React, Prettier, and Turbo plugins |
+| `@sprout/config-eslint/expo` | `expo.js` | Extends base with Expo-specific rules                           |
 
 ## Usage
 
 In your app or package's `eslint.config.mjs`:
 
 ```js
-import { base } from '@repo/config-eslint/base';
+import { base } from '@sprout/config-eslint/base';
 
 export default [...base];
 ```
@@ -26,7 +26,7 @@ export default [...base];
 Or for Expo apps:
 
 ```js
-import { expo } from '@repo/config-eslint/expo';
+import { expo } from '@sprout/config-eslint/expo';
 
 export default [...expo];
 ```

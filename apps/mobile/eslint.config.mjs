@@ -1,4 +1,4 @@
-import { config } from '@repo/config-eslint/expo';
+import { config } from '@sprout/config-eslint/expo';
 
 /** @type {import("eslint").Linter.Config} */
 export default config;
