@@ -15,15 +15,14 @@ apps/mobile/
   app/                  → Expo Router file-based routing
     _layout.tsx         → Root layout (AuthProvider, Stack)
     index.tsx           → Session gate (redirects to sign-in or tabs)
-    modal.tsx           → Modal screen
     (auth)/             → Auth group (sign-in, sign-up)
       _layout.tsx
       sign-in.tsx
       sign-up.tsx
     (tabs)/             → Tab group
       _layout.tsx       → Tab navigator layout
-      index.tsx         → Home tab
-      explore.tsx       → Explore tab
+      index.tsx         → Home tab (My children list)
+      child/[id].tsx    → Child detail (timeline placeholder)
       settings.tsx      → Settings tab
   components/
     ui/                 → Reusable UI primitives (Button, Text, Icon, etc.)

@@ -1,102 +1,218 @@
-import { Image } from 'expo-image';
-import { Platform, StyleSheet, View } from 'react-native';
+import { type Href, useRouter } from 'expo-router';
+import React, { useCallback, useEffect, useState } from 'react';
+import {
+  ActivityIndicator,
+  FlatList,
+  Pressable,
+  StyleSheet,
+  View,
+} from 'react-native';
+import { SafeAreaView } from 'react-native-safe-area-context';
 
-import { HelloWave } from '@/components/hello-wave';
-import ParallaxScrollView from '@/components/parallax-scroll-view';
 import { Text } from '@/components/ui/text';
-import { Link } from 'expo-router';
+import { useTheme } from '@/hooks/use-theme';
+import { supabase } from '@/services/supabase';
+
+type ChildRow = {
+  id: string;
+  name: string;
+  birthdate: string;
+  created_by: string;
+};
 
 export default function HomeScreen() {
-  return (
-    <ParallaxScrollView
-      headerBackgroundColor={{ light: '#A1CEDC', dark: '#1D3D47' }}
-      headerImage={
-        <Image
-          source={require('@/assets/images/partial-react-logo.png')}
-          style={styles.reactLogo}
-        />
-      }
-    >
-      <View style={styles.titleContainer}>
-        <Text variant="title">Welcome!</Text>
-        <HelloWave />
-      </View>
-      <View style={styles.stepContainer}>
-        <Text variant="subtitle">Step 1: Try it</Text>
-        <Text>
-          Edit <Text variant="bodySemibold">app/(tabs)/index.tsx</Text> to see
-          changes. Press{' '}
-          <Text variant="bodySemibold">
-            {Platform.select({
-              ios: 'cmd + d',
-              android: 'cmd + m',
-              web: 'F12',
-            })}
-          </Text>{' '}
-          to open developer tools.
-        </Text>
-      </View>
-      <View style={styles.stepContainer}>
-        <Link href="/modal">
-          <Link.Trigger>
-            <Text variant="subtitle">Step 2: Explore</Text>
-          </Link.Trigger>
-          <Link.Preview />
-          <Link.Menu>
-            <Link.MenuAction
-              title="Action"
-              icon="cube"
-              onPress={() => alert('Action pressed')}
-            />
-            <Link.MenuAction
-              title="Share"
-              icon="square.and.arrow.up"
-              onPress={() => alert('Share pressed')}
-            />
-            <Link.Menu title="More" icon="ellipsis">
-              <Link.MenuAction
-                title="Delete"
-                icon="trash"
-                destructive
-                onPress={() => alert('Delete pressed')}
-              />
-            </Link.Menu>
-          </Link.Menu>
-        </Link>
+  const [children, setChildren] = useState<ChildRow[]>([]);
+  const [isLoading, setIsLoading] = useState(true);
+  const [error, setError] = useState<string | null>(null);
+  const { colors } = useTheme();
+  const router = useRouter();
 
-        <Text>
-          {`Tap the Explore tab to learn more about what's included in this starter app.`}
-        </Text>
+  const fetchChildren = useCallback(async () => {
+    setError(null);
+    const { data, error: fetchError } = await (
+      supabase as unknown as {
+        from: (table: string) => {
+          select: (cols: string) => Promise<{
+            data: ChildRow[] | null;
+            error: { message: string } | null;
+          }>;
+        };
+      }
+    )
+      .from('children')
+      .select('*');
+
+    setIsLoading(false);
+    if (fetchError) {
+      setError(fetchError.message);
+      return;
+    }
+    setChildren(data ?? []);
+  }, []);
+
+  useEffect(() => {
+    fetchChildren();
+  }, [fetchChildren]);
+
+  const handlePressChild = useCallback(
+    (child: ChildRow) => {
+      router.push({
+        pathname: '/(tabs)/child/[id]',
+        params: { id: child.id },
+      } as Href);
+    },
+    [router],
+  );
+
+  if (isLoading) {
+    return (
+      <SafeAreaView
+        style={[styles.container, { backgroundColor: colors.background }]}
+        edges={['top']}
+      >
+        <View style={styles.centered}>
+          <ActivityIndicator size="large" color={colors.primary} />
+        </View>
+      </SafeAreaView>
+    );
+  }
+
+  if (error) {
+    return (
+      <SafeAreaView
+        style={[styles.container, { backgroundColor: colors.background }]}
+        edges={['top']}
+      >
+        <View style={styles.centered}>
+          <Text
+            variant="subtitle"
+            style={{ color: colors.destructive, textAlign: 'center' }}
+          >
+            {error}
+          </Text>
+        </View>
+      </SafeAreaView>
+    );
+  }
+
+  return (
+    <SafeAreaView
+      style={[styles.container, { backgroundColor: colors.background }]}
+      edges={['top']}
+    >
+      <View style={styles.header}>
+        <Text variant="title">My children</Text>
       </View>
-      <View style={styles.stepContainer}>
-        <Text variant="subtitle">Step 3: Get a fresh start</Text>
-        <Text>
-          {`When you're ready, run `}
-          <Text variant="bodySemibold">npm run reset-project</Text> to get a
-          fresh <Text variant="bodySemibold">app</Text> directory. This will
-          move the current <Text variant="bodySemibold">app</Text> to{' '}
-          <Text variant="bodySemibold">app-example</Text>.
-        </Text>
-      </View>
-    </ParallaxScrollView>
+      {children.length === 0 ? (
+        <View style={[styles.empty, { borderColor: colors.border }]}>
+          <Text
+            variant="subtitle"
+            style={{ color: colors.mutedForeground, textAlign: 'center' }}
+          >
+            No children yet
+          </Text>
+          <Text
+            variant="muted"
+            style={[styles.emptyHint, { color: colors.mutedForeground }]}
+          >
+            Children you add or are linked to will appear here.
+          </Text>
+        </View>
+      ) : (
+        <FlatList
+          data={children}
+          keyExtractor={(item) => item.id}
+          contentContainerStyle={styles.listContent}
+          renderItem={({ item }) => (
+            <Pressable
+              style={({ pressed }) => [
+                styles.row,
+                { backgroundColor: colors.card, borderColor: colors.border },
+                pressed && styles.rowPressed,
+              ]}
+              onPress={() => handlePressChild(item)}
+            >
+              <View style={styles.rowContent}>
+                <View
+                  style={[styles.avatar, { backgroundColor: colors.muted }]}
+                />
+                <View style={styles.rowText}>
+                  <Text
+                    variant="bodySemibold"
+                    style={{ color: colors.foreground }}
+                  >
+                    {item.name}
+                  </Text>
+                  <Text
+                    variant="muted"
+                    style={{ color: colors.mutedForeground }}
+                  >
+                    {item.birthdate}
+                  </Text>
+                </View>
+              </View>
+            </Pressable>
+          )}
+        />
+      )}
+    </SafeAreaView>
   );
 }
 
 const styles = StyleSheet.create({
-  titleContainer: {
+  container: {
+    flex: 1,
+  },
+  centered: {
+    flex: 1,
+    alignItems: 'center',
+    justifyContent: 'center',
+  },
+  header: {
+    paddingHorizontal: 16,
+    paddingVertical: 12,
+  },
+  listContent: {
+    paddingHorizontal: 16,
+    paddingBottom: 24,
+    gap: 12,
+  },
+  row: {
+    borderRadius: 8,
+    borderWidth: 1,
+    overflow: 'hidden',
+  },
+  rowPressed: {
+    opacity: 0.8,
+  },
+  rowContent: {
     flexDirection: 'row',
     alignItems: 'center',
-    gap: 8,
+    padding: 16,
   },
-  stepContainer: {
-    gap: 8,
-    marginBottom: 8,
+  avatar: {
+    width: 44,
+    height: 44,
+    borderRadius: 22,
+    marginRight: 12,
   },
-  reactLogo: {
-    height: 178,
-    width: 290,
-    bottom: 0,
-    left: 0,
-    position: 'absolute',
+  rowText: {
+    flex: 1,
+    gap: 4,
+  },
+  empty: {
+    flex: 1,
+    marginHorizontal: 16,
+    marginTop: 24,
+    borderWidth: 1,
+    borderStyle: 'dashed',
+    borderRadius: 12,
+    alignItems: 'center',
+    justifyContent: 'center',
+    padding: 32,
+  },
+  emptyHint: {
+    marginTop: 8,
+    textAlign: 'center',
   },
 });
