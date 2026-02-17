@@ -8,11 +8,12 @@ import { StatusBar } from 'expo-status-bar';
 import React, { useMemo } from 'react';
 import 'react-native-reanimated';
 
+import { AuthProvider } from '@/components/auth-context';
 import { ThemeProvider as AppThemeProvider } from '@/components/theme-context';
 import { useTheme } from '@/hooks/use-theme';
 
 export const unstable_settings = {
-  anchor: '(tabs)',
+  initialRouteName: 'index',
 };
 
 function Inner() {
@@ -26,7 +27,9 @@ function Inner() {
   return (
     <NavigationThemeProvider value={navigationTheme}>
       <Stack>
+        <Stack.Screen name="index" options={{ headerShown: false }} />
         <Stack.Screen name="(tabs)" options={{ headerShown: false }} />
+        <Stack.Screen name="(auth)" options={{ headerShown: false }} />
         <Stack.Screen
           name="modal"
           options={{ presentation: 'modal', title: 'Modal' }}
@@ -40,7 +43,9 @@ function Inner() {
 export default function RootLayout() {
   return (
     <AppThemeProvider>
-      <Inner />
+      <AuthProvider>
+        <Inner />
+      </AuthProvider>
     </AppThemeProvider>
   );
 }

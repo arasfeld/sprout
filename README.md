@@ -50,8 +50,6 @@ Clients talk directly to [Supabase](https://supabase.com). There is no Express/F
 | `child_organizations`  | Links children to organizations                           |
 | `events`               | All activity (nap, meal, diaper, note, message)           |
 
-See [docs/architecture.md](docs/architecture.md) for the full data model, entity relationships, and RLS philosophy.
-
 ## Monorepo Structure
 
 This is a pnpm monorepo managed by [Turborepo](https://turbo.build/repo).
@@ -65,12 +63,11 @@ apps/
 packages/
   config-eslint/       → Shared ESLint configurations
   config-typescript/   → Shared TypeScript configurations
-  supabase/            → Supabase client + typed helpers (future)
-  types/               → Shared TypeScript types, generated from DB (future)
-  ui/                  → Shared UI components (future)
+  core/                → Shared TypeScript types, generated from DB (future)
+  supabase/            → Supabase client, migrations, local dev (active)
 ```
 
-Currently, only `apps/mobile` and the config packages are active.
+Currently active: `apps/mobile`, config packages, and `packages/supabase`. The mobile app uses Supabase Auth (sign up / sign in) and is session-aware.
 
 ## Tech Stack
 

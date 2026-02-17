@@ -6,15 +6,20 @@ This is the primary client for the Sprout childcare tracking system. Parents, ca
 
 ## Current Status
 
-The UI is under active development. Screens and feature flows are being built with mock/local data. Backend integration via Supabase is being introduced incrementally.
+The UI is under active development. The app uses **Supabase Auth** (email/password sign up and sign in) and is session-aware; unauthenticated users see the sign-in screen first. Backend integration is being introduced incrementally — the home tab can be wired to real data (e.g. children for the current user) as a next step. Use mock/local data for features not yet connected.
 
 ## Folder Structure
 
 ```
 apps/mobile/
   app/                  → Expo Router file-based routing
-    _layout.tsx         → Root layout
+    _layout.tsx         → Root layout (AuthProvider, Stack)
+    index.tsx           → Session gate (redirects to sign-in or tabs)
     modal.tsx           → Modal screen
+    (auth)/             → Auth group (sign-in, sign-up)
+      _layout.tsx
+      sign-in.tsx
+      sign-up.tsx
     (tabs)/             → Tab group
       _layout.tsx       → Tab navigator layout
       index.tsx         → Home tab
@@ -85,6 +90,7 @@ All reusable UI primitives live in `components/ui/`:
 | Button            | `button.tsx`            | Pressable button with variant/size props |
 | Text              | `text.tsx`              | Themed text with typography variants     |
 | Icon              | `icon-symbol.tsx`       | SF Symbols (iOS) and Material Icons      |
+| Input             | `input.tsx`             | Themed text input for forms              |
 | Collapsible       | `collapsible.tsx`       | Expandable/collapsible content           |
 | Segmented Control | `segmented-control.tsx` | Tab-like segmented selector              |
 
@@ -108,9 +114,7 @@ This app uses [Expo Router](https://docs.expo.dev/router/introduction/) for file
 
 ## Data
 
-Currently using **mock/local data**. Domain types are defined in `types/`. User preferences are persisted locally via AsyncStorage (`services/storage.ts`).
-
-When connected, this app will talk directly to Supabase — no custom API server. Supabase Realtime will power live timeline updates. See [docs/architecture.md](../../docs/architecture.md) for the full data model.
+The app talks directly to **Supabase** — no custom API server. **Supabase Auth** handles sign up and sign in; session is persisted via AsyncStorage. Domain types are defined in `types/`. User preferences are also persisted locally via AsyncStorage (`services/storage.ts`). The home tab can be wired to load children (and other data) for the current user; Supabase Realtime will power live timeline updates.
 
 ## Development
 

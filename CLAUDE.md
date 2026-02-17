@@ -31,8 +31,6 @@ The mobile app UI is under active development. We are designing screens, buildin
 
 ## Data Model
 
-The core data model follows the shared timeline principle. See [docs/architecture.md](docs/architecture.md) for full details.
-
 **Key tables:**
 
 - `users` — managed by Supabase Auth
@@ -93,12 +91,11 @@ apps/
 packages/
   config-eslint/       → Shared ESLint configurations
   config-typescript/   → Shared TypeScript configurations
-  supabase/            → Supabase client + typed helpers (future)
-  types/               → Shared TypeScript types (future, generated from DB)
-  ui/                  → Shared UI components (future)
+  core/                → Shared TypeScript types, constants, functions, etc.
+  supabase/            → Supabase client, migrations, local dev (active)
 ```
 
-Currently, only `apps/mobile` and the config packages are active.
+Currently active: `apps/mobile`, config packages, and `packages/supabase`. The mobile app has Supabase Auth (sign up / sign in) and is session-aware.
 
 **Mobile app structure (`apps/mobile/`):**
 
