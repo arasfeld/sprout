@@ -22,7 +22,7 @@ export type Database = any;
 export function createSupabaseClient(
   supabaseUrl: string,
   supabaseAnonKey: string,
-  options?: SupabaseClientOptions<"public">,
+  options?: SupabaseClientOptions<'public'>,
 ): SupabaseClient<Database> {
   if (!supabaseUrl) {
     throw new Error('Missing SUPABASE_URL.');
