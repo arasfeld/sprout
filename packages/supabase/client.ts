@@ -3,9 +3,7 @@ import {
   SupabaseClient,
   SupabaseClientOptions,
 } from '@supabase/supabase-js';
-
-// Database types will be generated here in the future
-export type Database = any;
+import { Database } from './database.types';
 
 /**
  * Creates and returns a configured Supabase client instance.

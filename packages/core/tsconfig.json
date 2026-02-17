@@ -1,11 +1,9 @@
 {
   "extends": "@sprout/config-typescript/base.json",
   "compilerOptions": {
-    "baseUrl": ".",
-    "paths": {
-      "@sprout/core": ["./index.ts"]
-    }
+    "outDir": "dist",
+    "baseUrl": "."
   },
-  "include": ["."],
-  "exclude": ["node_modules", "dist"]
+  "include": ["*.ts"],
+  "exclude": ["dist", "node_modules"]
 }

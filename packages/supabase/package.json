@@ -8,13 +8,24 @@
     "build": "tsc",
     "check-types": "tsc --noEmit",
     "clean": "rm -rf dist node_modules",
-    "lint": "eslint src --ext ts,tsx"
+    "dev": "tsc --watch",
+    "lint": "eslint . --ext ts --ignore-pattern dist --ignore-pattern node_modules --ignore-pattern supabase",
+    "supabase:gen-types": "supabase gen types typescript --schema public --workdir . > database.types.ts",
+    "supabase:init": "supabase init --workdir .",
+    "supabase:link": "supabase link --workdir .",
+    "supabase:pull": "supabase db pull --workdir .",
+    "supabase:push": "supabase db push --workdir . --local",
+    "supabase:seed": "supabase db seed --workdir .",
+    "supabase:start": "pnpx supabase start --workdir .",
+    "supabase:stop": "pnpx supabase stop --workdir ."
   },
   "dependencies": {
+    "@sprout/core": "workspace:*",
     "@supabase/supabase-js": "^2.95.3"
   },
   "devDependencies": {
     "@sprout/config-typescript": "workspace:*",
+    "supabase": "^2.76.9",
     "typescript": "5.9.2"
   }
 }

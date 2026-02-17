@@ -13,6 +13,7 @@ The same child timeline is shared between single parents, co-parents, daycare st
 The mobile app UI is under active development. We are designing screens, building feature flows, creating forms, and iterating on UX. The data model is defined (see [docs/architecture.md](docs/architecture.md)) but backend integration is being introduced incrementally.
 
 **Do:**
+
 - Use mock/local data for features that are not yet connected
 - Keep UI state local where possible (useState, useReducer)
 - Model domain types in the `types/` directory or in `packages/types`
@@ -21,6 +22,7 @@ The mobile app UI is under active development. We are designing screens, buildin
 - Keep commits small and focused
 
 **Do not:**
+
 - Build a custom API server — clients talk directly to Supabase
 - Introduce Redux, RTK Query, MobX, or similar state libraries
 - Over-engineer messaging — messages are events with `type = 'message'`
@@ -32,6 +34,7 @@ The mobile app UI is under active development. We are designing screens, buildin
 The core data model follows the shared timeline principle. See [docs/architecture.md](docs/architecture.md) for full details.
 
 **Key tables:**
+
 - `users` — managed by Supabase Auth
 - `children` — child profiles
 - `child_memberships` — links users to children with roles (parent, caregiver, admin) and optional organization context
@@ -41,6 +44,7 @@ The core data model follows the shared timeline principle. See [docs/architectur
 - `events` — **all activity** (nap, meal, diaper, note, message) stored in a single table per child
 
 **Rules:**
+
 1. All activity is stored in `events`. There are no separate tables for naps, meals, etc.
 2. Events belong to a child, not to a user or organization.
 3. Access is controlled by `child_memberships` and organization membership.
@@ -97,6 +101,7 @@ packages/
 Currently, only `apps/mobile` and the config packages are active.
 
 **Mobile app structure (`apps/mobile/`):**
+
 - `app/` — Expo Router file-based routing with typed routes
 - `components/ui/` — Reusable UI primitives styled with theme tokens
 - `components/` — App-level components (theme context, navigation helpers)
@@ -125,6 +130,7 @@ We use a **shadcn-inspired design system** for React Native.
 All reusable UI primitives **must** live in `components/ui/`.
 
 Components **must:**
+
 - Access the theme via `useTheme()`
 - Never hardcode colors or typography styles
 - Always reference semantic tokens

@@ -1,5 +1,5 @@
 export { createSupabaseClient } from './client';
-export type { Database } from './client';
+export type { Database } from './database.types';
 
 // Re-export commonly used Supabase types and utilities
 export type {
