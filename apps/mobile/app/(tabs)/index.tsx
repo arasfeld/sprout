@@ -9,6 +9,13 @@ import {
 } from 'react-native';
 import { SafeAreaView } from 'react-native-safe-area-context';
 
+import {
+  Item,
+  ItemContent,
+  ItemDescription,
+  ItemMedia,
+  ItemTitle,
+} from '@/components/ui/item';
 import { Text } from '@/components/ui/text';
 import { useTheme } from '@/hooks/use-theme';
 import { supabase } from '@/services/supabase';
@@ -124,34 +131,22 @@ export default function HomeScreen() {
           keyExtractor={(item) => item.id}
           contentContainerStyle={styles.listContent}
           renderItem={({ item }) => (
-            <Pressable
-              style={({ pressed }) => [
-                styles.row,
-                { backgroundColor: colors.card, borderColor: colors.border },
-                pressed && styles.rowPressed,
-              ]}
-              onPress={() => handlePressChild(item)}
-            >
-              <View style={styles.rowContent}>
-                <View
-                  style={[styles.avatar, { backgroundColor: colors.muted }]}
-                />
-                <View style={styles.rowText}>
-                  <Text
-                    variant="bodySemibold"
-                    style={{ color: colors.foreground }}
-                  >
-                    {item.name}
-                  </Text>
-                  <Text
-                    variant="muted"
-                    style={{ color: colors.mutedForeground }}
-                  >
-                    {item.birthdate}
-                  </Text>
-                </View>
-              </View>
-            </Pressable>
+            <Item asChild variant="outline">
+              <Pressable
+                style={({ pressed }) => [pressed && styles.rowPressed]}
+                onPress={() => handlePressChild(item)}
+              >
+                <ItemMedia>
+                  <View
+                    style={[styles.avatar, { backgroundColor: colors.muted }]}
+                  />
+                </ItemMedia>
+                <ItemContent>
+                  <ItemTitle>{item.name}</ItemTitle>
+                  <ItemDescription>{item.birthdate}</ItemDescription>
+                </ItemContent>
+              </Pressable>
+            </Item>
           )}
         />
       )}
@@ -177,28 +172,13 @@ const styles = StyleSheet.create({
     paddingBottom: 24,
     gap: 12,
   },
-  row: {
-    borderRadius: 8,
-    borderWidth: 1,
-    overflow: 'hidden',
-  },
   rowPressed: {
     opacity: 0.8,
-  },
-  rowContent: {
-    flexDirection: 'row',
-    alignItems: 'center',
-    padding: 16,
   },
   avatar: {
     width: 44,
     height: 44,
     borderRadius: 22,
-    marginRight: 12,
-  },
-  rowText: {
-    flex: 1,
-    gap: 4,
   },
   empty: {
     flex: 1,

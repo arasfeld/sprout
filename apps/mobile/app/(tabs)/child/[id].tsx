@@ -4,6 +4,8 @@ import { ActivityIndicator, StyleSheet, View } from 'react-native';
 import { SafeAreaView } from 'react-native-safe-area-context';
 
 import { Button } from '@/components/ui/button';
+import { FieldContent, FieldLegend, FieldSet } from '@/components/ui/field';
+import { Separator } from '@/components/ui/separator';
 import { Text } from '@/components/ui/text';
 import { useTheme } from '@/hooks/use-theme';
 import { supabase } from '@/services/supabase';
@@ -118,20 +120,21 @@ export default function ChildDetailScreen() {
         >
           Birth date: {child.birthdate}
         </Text>
-        <View style={styles.timelineSection}>
-          <Text variant="subtitle" style={{ color: colors.foreground }}>
-            Timeline
-          </Text>
-          <Text
-            variant="muted"
-            style={[
-              styles.timelinePlaceholder,
-              { color: colors.mutedForeground },
-            ]}
-          >
-            Events will appear here.
-          </Text>
-        </View>
+        <Separator style={styles.sectionSeparator} />
+        <FieldSet>
+          <FieldLegend>Timeline</FieldLegend>
+          <FieldContent>
+            <Text
+              variant="muted"
+              style={[
+                styles.timelinePlaceholder,
+                { color: colors.mutedForeground },
+              ]}
+            >
+              Events will appear here.
+            </Text>
+          </FieldContent>
+        </FieldSet>
       </View>
     </SafeAreaView>
   );
@@ -160,8 +163,8 @@ const styles = StyleSheet.create({
   birthdate: {
     marginTop: 4,
   },
-  timelineSection: {
-    marginTop: 24,
+  sectionSeparator: {
+    marginVertical: 20,
   },
   timelinePlaceholder: {
     marginTop: 8,

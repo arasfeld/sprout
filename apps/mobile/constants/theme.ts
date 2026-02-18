@@ -105,15 +105,37 @@ export const FontWeights = {
   bold: 'bold' as const,
 };
 
+export const LetterSpacings = {
+  tight: -0.5,
+  normal: 0,
+};
+
 export const LineHeights = {
   tight: 1.2,
   normal: 1.5,
   relaxed: 1.75,
+  none: 1,
+};
+
+export const Radius = {
+  sm: 4,
+  md: 6,
+  lg: 8,
+  xl: 12,
+};
+
+export const Spacing = {
+  xs: 4,
+  sm: 8,
+  md: 12,
+  lg: 16,
+  xl: 24,
 };
 
 export const Typography = {
+  fonts: Fonts,
   fontSize: FontSizes,
   fontWeight: FontWeights,
+  letterSpacing: LetterSpacings,
   lineHeight: LineHeights,
-  fonts: Fonts,
 };

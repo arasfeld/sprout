@@ -1,12 +1,14 @@
 import { type Href, useRouter } from 'expo-router';
 import React, { useCallback, useMemo } from 'react';
-import { StyleSheet, View } from 'react-native';
+import { StyleSheet } from 'react-native';
 import { SafeAreaView } from 'react-native-safe-area-context';
 
 import { useAuth } from '@/components/auth-context';
 import { useThemePreferences } from '@/components/theme-context';
 import { Button } from '@/components/ui/button';
+import { FieldGroup, FieldLegend, FieldSet } from '@/components/ui/field';
 import { SegmentedControl } from '@/components/ui/segmented-control';
+import { Separator } from '@/components/ui/separator';
 import { SupabaseTest } from '@/components/supabase-test';
 
 export default function SettingsScreen() {
@@ -44,20 +46,26 @@ export default function SettingsScreen() {
 
   return (
     <SafeAreaView style={styles.container}>
-      <SegmentedControl
-        title="Theme"
-        subtitle="Choose your preferred appearance"
-        options={options}
-        selectedIndex={themeOptions.indexOf(mode)}
-        onValueChange={handleChange}
-        disabled={isLoading}
-      />
-      <View style={styles.signOutSection}>
-        <Button fullWidth onPress={handleSignOut} size="lg" variant="outline">
-          Sign out
-        </Button>
-      </View>
-      <SupabaseTest />
+      <FieldSet>
+        <FieldGroup>
+          <FieldLegend>Appearance</FieldLegend>
+          <SegmentedControl
+            title="Theme"
+            subtitle="Choose your preferred appearance"
+            options={options}
+            selectedIndex={themeOptions.indexOf(mode)}
+            onValueChange={handleChange}
+            disabled={isLoading}
+          />
+        </FieldGroup>
+        <Separator style={styles.separator} />
+        <FieldGroup>
+          <FieldLegend>Account</FieldLegend>
+          <Button onPress={handleSignOut}>Sign out</Button>
+        </FieldGroup>
+        <Separator style={styles.separator} />
+        <SupabaseTest />
+      </FieldSet>
     </SafeAreaView>
   );
 }
@@ -67,7 +75,7 @@ const styles = StyleSheet.create({
     flex: 1,
     padding: 16,
   },
-  signOutSection: {
-    marginTop: 24,
+  separator: {
+    marginVertical: 16,
   },
 });

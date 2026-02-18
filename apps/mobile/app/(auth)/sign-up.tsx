@@ -10,6 +10,13 @@ import {
 import { SafeAreaView } from 'react-native-safe-area-context';
 
 import { Button } from '@/components/ui/button';
+import {
+  Field,
+  FieldContent,
+  FieldError,
+  FieldLabel,
+  FieldSet,
+} from '@/components/ui/field';
 import { Input } from '@/components/ui/input';
 import { Text } from '@/components/ui/text';
 import { useTheme } from '@/hooks/use-theme';
@@ -40,6 +47,8 @@ export default function SignUpScreen() {
     router.replace('/(tabs)');
   };
 
+  const passwordMismatch = password !== confirmPassword;
+
   return (
     <SafeAreaView style={[styles.safe, { backgroundColor: colors.background }]}>
       <KeyboardAvoidingView
@@ -50,45 +59,56 @@ export default function SignUpScreen() {
           <Text variant="title" style={styles.title}>
             Create account
           </Text>
-          <Input
-            autoCapitalize="none"
-            autoComplete="email"
-            keyboardType="email-address"
-            placeholder="Email"
-            value={email}
-            onChangeText={(t) => setEmail(t)}
-            containerStyle={styles.input}
-          />
-          <Input
-            autoComplete="new-password"
-            placeholder="Password"
-            secureTextEntry
-            value={password}
-            onChangeText={(t) => setPassword(t)}
-            containerStyle={styles.input}
-          />
-          <Input
-            autoComplete="new-password"
-            placeholder="Confirm password"
-            secureTextEntry
-            value={confirmPassword}
-            onChangeText={(t) => setConfirmPassword(t)}
-            containerStyle={styles.input}
-          />
-          {error ? (
-            <Text style={[styles.error, { color: colors.destructive }]}>
-              {error}
-            </Text>
-          ) : null}
-          <Button
-            fullWidth
-            loading={loading}
-            onPress={handleSignUp}
-            size="lg"
-            style={styles.button}
-          >
-            Create account
-          </Button>
+          <FieldSet>
+            <Field>
+              <FieldLabel>Email</FieldLabel>
+              <FieldContent>
+                <Input
+                  autoCapitalize="none"
+                  autoComplete="email"
+                  keyboardType="email-address"
+                  placeholder="Email"
+                  value={email}
+                  onChangeText={(t) => setEmail(t)}
+                />
+              </FieldContent>
+            </Field>
+            <Field>
+              <FieldLabel>Password</FieldLabel>
+              <FieldContent>
+                <Input
+                  autoComplete="new-password"
+                  placeholder="Password"
+                  secureTextEntry
+                  value={password}
+                  onChangeText={(t) => setPassword(t)}
+                />
+              </FieldContent>
+            </Field>
+            <Field>
+              <FieldLabel>Confirm password</FieldLabel>
+              <FieldContent>
+                <Input
+                  autoComplete="new-password"
+                  invalid={passwordMismatch}
+                  placeholder="Confirm password"
+                  secureTextEntry
+                  value={confirmPassword}
+                  onChangeText={(t) => setConfirmPassword(t)}
+                />
+              </FieldContent>
+            </Field>
+            <FieldError errors={error ? [{ message: error }] : []} />
+            <Button
+              fullWidth
+              loading={loading}
+              onPress={handleSignUp}
+              size="lg"
+              style={styles.button}
+            >
+              Create account
+            </Button>
+          </FieldSet>
           <Pressable onPress={() => router.back()} style={styles.linkWrap}>
             <Text style={{ color: colors.primary }}>
               Already have an account? Sign in
@@ -110,13 +130,6 @@ const styles = StyleSheet.create({
   },
   title: {
     marginBottom: 24,
-  },
-  input: {
-    marginBottom: 16,
-  },
-  error: {
-    marginBottom: 12,
-    fontSize: 14,
   },
   button: {
     marginTop: 8,

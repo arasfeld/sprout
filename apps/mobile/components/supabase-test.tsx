@@ -1,6 +1,15 @@
 import React, { useState } from 'react';
-import { View, Text, TouchableOpacity, StyleSheet } from 'react-native';
+import { View, StyleSheet } from 'react-native'; // Removed TouchableOpacity
 import { supabase } from '@/services/supabase';
+import {
+  Card,
+  CardContent,
+  CardDescription,
+  CardHeader,
+  CardTitle,
+} from './ui/card';
+import { Text } from './ui/text';
+import { Button } from './ui/button'; // Import Button component
 
 export function SupabaseTest() {
   const [status, setStatus] = useState<string>('Not tested');
@@ -98,68 +107,67 @@ export function SupabaseTest() {
       : '#6b7280';
 
   return (
-    <View style={styles.container}>
-      <Text style={styles.title}>Supabase Integration Test</Text>
-
-      <View style={styles.statusContainer}>
-        <Text style={styles.statusLabel}>Status:</Text>
-        <Text style={[styles.status, { color: statusColor }]}>{status}</Text>
-      </View>
-
-      {error && (
-        <View style={styles.errorContainer}>
-          <Text style={styles.errorLabel}>Error:</Text>
-          <Text style={styles.error}>{error}</Text>
+    <Card padded style={styles.card}>
+      <CardHeader>
+        <CardTitle level={3}>Supabase Integration Test</CardTitle>
+      </CardHeader>
+      <CardContent>
+        <View style={styles.statusContainer}>
+          <Text style={styles.statusLabel}>Status:</Text>
+          <Text style={[styles.status, { color: statusColor }]}>{status}</Text>
         </View>
-      )}
 
-      <TouchableOpacity style={styles.button} onPress={testSupabaseConnection}>
-        <Text style={styles.buttonText}>Test Supabase Client</Text>
-      </TouchableOpacity>
+        {error && (
+          <View style={styles.errorContainer}>
+            <Text style={styles.errorLabel}>Error:</Text>
+            <Text style={styles.error}>{error}</Text>
+          </View>
+        )}
 
-      <TouchableOpacity style={styles.button} onPress={testDataFetch}>
-        <Text style={styles.buttonText}>Fetch Children Data</Text>
-      </TouchableOpacity>
+        <Button
+          style={styles.buttonSpacing} // Apply spacing style here
+          onPress={testSupabaseConnection}
+        >
+          Test Supabase Client
+        </Button>
 
-      {childrenData && childrenData.length > 0 && (
-        <View style={styles.dataContainer}>
-          <Text style={styles.dataLabel}>Fetched Children (first 5):</Text>
-          {childrenData.map((child, index) => (
-            <Text key={child.id || index} style={styles.dataItem}>
-              - {child.name} (ID: {child.id})
+        <Button
+          style={styles.buttonSpacing} // Apply spacing style here
+          onPress={testDataFetch}
+        >
+          Fetch Children Data
+        </Button>
+
+        {childrenData && childrenData.length > 0 && (
+          <View style={styles.dataContainer}>
+            <Text style={styles.dataLabel}>Fetched Children (first 5):</Text>
+            {childrenData.map((child, index) => (
+              <Text key={child.id || index} style={styles.dataItem}>
+                - {child.name} (ID: {child.id})
+              </Text>
+            ))}
+          </View>
+        )}
+        {childrenData && childrenData.length === 0 && (
+          <View style={styles.dataContainer}>
+            <Text style={styles.dataLabel}>
+              No children found in the database.
             </Text>
-          ))}
-        </View>
-      )}
-      {childrenData && childrenData.length === 0 && (
-        <View style={styles.dataContainer}>
-          <Text style={styles.dataLabel}>
-            No children found in the database.
-          </Text>
-        </View>
-      )}
-
-      <Text style={styles.note}>
+          </View>
+        )}
+      </CardContent>
+      <CardDescription style={styles.note}>
         Note: This test verifies the client can be imported and basic methods
         work. Authentication errors are expected without proper environment
         variables.
-      </Text>
-    </View>
+      </CardDescription>
+    </Card>
   );
 }
 
 const styles = StyleSheet.create({
-  container: {
-    padding: 16,
-    backgroundColor: '#f9fafb',
-    borderRadius: 8,
+  card: {
     margin: 16,
-  },
-  title: {
-    fontSize: 18,
-    fontWeight: 'bold',
-    marginBottom: 16,
-    textAlign: 'center',
   },
   statusContainer: {
     flexDirection: 'row',
@@ -188,16 +196,9 @@ const styles = StyleSheet.create({
     color: '#dc2626',
     fontSize: 12,
   },
-  button: {
-    backgroundColor: '#3b82f6',
-    padding: 12,
-    borderRadius: 6,
-    alignItems: 'center',
+  // Removed button styles as they are now handled by the Button component
+  buttonSpacing: {
     marginBottom: 12,
-  },
-  buttonText: {
-    color: 'white',
-    fontWeight: '600',
   },
   dataContainer: {
     marginTop: 12,
@@ -217,10 +218,8 @@ const styles = StyleSheet.create({
     color: '#075985',
   },
   note: {
-    fontSize: 12,
-    color: '#6b7280',
     textAlign: 'center',
     fontStyle: 'italic',
-    marginTop: 12,
+    marginTop: 12, // Keep some margin for separation
   },
 });

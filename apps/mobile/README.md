@@ -71,7 +71,7 @@ function MyComponent() {
   const { colors, typography, spacing } = useTheme();
 
   return (
-    <View style={{ backgroundColor: colors.background, padding: spacing[4] }}>
+    <View style={{ backgroundColor: colors.background, padding: spacing.md }}>
       <Text style={{ color: colors.foreground }}>Hello</Text>
     </View>
   );
@@ -84,14 +84,21 @@ Platform-specific variants (`use-theme.web.ts`, `use-color-scheme.web.ts`) handl
 
 All reusable UI primitives live in `components/ui/`:
 
-| Component         | File                    | Description                              |
-| ----------------- | ----------------------- | ---------------------------------------- |
-| Button            | `button.tsx`            | Pressable button with variant/size props |
-| Text              | `text.tsx`              | Themed text with typography variants     |
-| Icon              | `icon-symbol.tsx`       | SF Symbols (iOS) and Material Icons      |
-| Input             | `input.tsx`             | Themed text input for forms              |
-| Collapsible       | `collapsible.tsx`       | Expandable/collapsible content           |
-| Segmented Control | `segmented-control.tsx` | Tab-like segmented selector              |
+| Component         | File                    | Description                                               |
+| ----------------- | ----------------------- | --------------------------------------------------------- |
+| Button            | `button.tsx`            | Pressable button with variant/size props                  |
+| Text              | `text.tsx`              | Themed text with typography variants                      |
+| Icon              | `icon-symbol.tsx`       | SF Symbols (iOS) and Material Icons                       |
+| Input             | `input.tsx`             | Themed text input; supports invalid, focus ring, disabled |
+| Label             | `label.tsx`             | Form label text                                           |
+| Separator         | `separator.tsx`         | Horizontal or vertical divider                            |
+| Checkbox          | `checkbox.tsx`          | Checkbox with controlled/uncontrolled, invalid, sizes     |
+| Radio             | `radio.tsx`             | RadioGroup and RadioGroupItem for single choice           |
+| Select            | `select.tsx`            | Modal-based dropdown (options, value, onChange)           |
+| Field             | `field.tsx`             | Form field primitives (FieldSet, FieldLabel, FieldError…) |
+| Item              | `item.tsx`              | List item primitives (ItemGroup, Item, ItemTitle…)        |
+| Collapsible       | `collapsible.tsx`       | Expandable/collapsible content                            |
+| Segmented Control | `segmented-control.tsx` | Tab-like segmented selector                               |
 
 #### Building new UI components
 

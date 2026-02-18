@@ -10,6 +10,13 @@ import {
 import { SafeAreaView } from 'react-native-safe-area-context';
 
 import { Button } from '@/components/ui/button';
+import {
+  Field,
+  FieldContent,
+  FieldError,
+  FieldLabel,
+  FieldSet,
+} from '@/components/ui/field';
 import { Input } from '@/components/ui/input';
 import { Text } from '@/components/ui/text';
 import { useTheme } from '@/hooks/use-theme';
@@ -48,37 +55,43 @@ export default function SignInScreen() {
           <Text variant="title" style={styles.title}>
             Sign in
           </Text>
-          <Input
-            autoCapitalize="none"
-            autoComplete="email"
-            keyboardType="email-address"
-            placeholder="Email"
-            value={email}
-            onChangeText={(t) => setEmail(t)}
-            containerStyle={styles.input}
-          />
-          <Input
-            autoComplete="password"
-            placeholder="Password"
-            secureTextEntry
-            value={password}
-            onChangeText={(t) => setPassword(t)}
-            containerStyle={styles.input}
-          />
-          {error ? (
-            <Text style={[styles.error, { color: colors.destructive }]}>
-              {error}
-            </Text>
-          ) : null}
-          <Button
-            fullWidth
-            loading={loading}
-            onPress={handleSignIn}
-            size="lg"
-            style={styles.button}
-          >
-            Sign in
-          </Button>
+          <FieldSet>
+            <Field>
+              <FieldLabel>Email</FieldLabel>
+              <FieldContent>
+                <Input
+                  autoCapitalize="none"
+                  autoComplete="email"
+                  keyboardType="email-address"
+                  placeholder="Email"
+                  value={email}
+                  onChangeText={(t) => setEmail(t)}
+                />
+              </FieldContent>
+            </Field>
+            <Field>
+              <FieldLabel>Password</FieldLabel>
+              <FieldContent>
+                <Input
+                  autoComplete="password"
+                  placeholder="Password"
+                  secureTextEntry
+                  value={password}
+                  onChangeText={(t) => setPassword(t)}
+                />
+              </FieldContent>
+            </Field>
+            <FieldError errors={error ? [{ message: error }] : []} />
+            <Button
+              fullWidth
+              loading={loading}
+              onPress={handleSignIn}
+              size="lg"
+              style={styles.button}
+            >
+              Sign in
+            </Button>
+          </FieldSet>
           <Pressable
             onPress={() => router.push('/(auth)/sign-up' as Href)}
             style={styles.linkWrap}
@@ -103,13 +116,6 @@ const styles = StyleSheet.create({
   },
   title: {
     marginBottom: 24,
-  },
-  input: {
-    marginBottom: 16,
-  },
-  error: {
-    marginBottom: 12,
-    fontSize: 14,
   },
   button: {
     marginTop: 8,
