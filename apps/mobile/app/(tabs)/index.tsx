@@ -36,25 +36,27 @@ export default function HomeScreen() {
 
   const fetchChildren = useCallback(async () => {
     setError(null);
-    const { data, error: fetchError } = await (
-      supabase as unknown as {
-        from: (table: string) => {
-          select: (cols: string) => Promise<{
-            data: ChildRow[] | null;
-            error: { message: string } | null;
-          }>;
-        };
-      }
-    )
-      .from('children')
-      .select('*');
+    setIsLoading(true);
+
+    // RLS on `child_memberships` table automatically filters to the current user.
+    // Then we select the nested child data from that relationship.
+    const { data: memberships, error: fetchError } = await supabase
+      .from('child_memberships')
+      .select('children(*)');
 
     setIsLoading(false);
     if (fetchError) {
       setError(fetchError.message);
       return;
     }
-    setChildren(data ?? []);
+
+    // The query returns membership objects, each with a 'children' property.
+    // We extract the 'children' object from each and filter out any nulls.
+    const childrenData = (memberships ?? [])
+      .map((membership) => membership.children)
+      .filter((child): child is ChildRow => child !== null);
+
+    setChildren(childrenData);
   }, []);
 
   useEffect(() => {

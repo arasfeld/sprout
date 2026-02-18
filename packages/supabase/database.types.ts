@@ -7,23 +7,270 @@ export type Json =
   | Json[];
 
 export type Database = {
-  // Allows to automatically instantiate createClient with right options
-  // instead of createClient<Database, { PostgrestVersion: 'XX' }>(URL, KEY)
-  __InternalSupabase: {
-    PostgrestVersion: '14.1';
-  };
   public: {
     Tables: {
-      [_ in never]: never;
+      child_memberships: {
+        Row: {
+          child_id: string;
+          id: string;
+          organization_id: string | null;
+          permissions: Json | null;
+          role: Database['public']['Enums']['ChildMembershipRole'];
+          user_id: string;
+        };
+        Insert: {
+          child_id: string;
+          id?: string;
+          organization_id?: string | null;
+          permissions?: Json | null;
+          role: Database['public']['Enums']['ChildMembershipRole'];
+          user_id: string;
+        };
+        Update: {
+          child_id?: string;
+          id?: string;
+          organization_id?: string | null;
+          permissions?: Json | null;
+          role?: Database['public']['Enums']['ChildMembershipRole'];
+          user_id?: string;
+        };
+        Relationships: [
+          {
+            foreignKeyName: 'child_memberships_child_id_fkey';
+            columns: ['child_id'];
+            isOneToOne: false;
+            referencedRelation: 'children';
+            referencedColumns: ['id'];
+          },
+          {
+            foreignKeyName: 'child_memberships_organization_id_fkey';
+            columns: ['organization_id'];
+            isOneToOne: false;
+            referencedRelation: 'organizations';
+            referencedColumns: ['id'];
+          },
+          {
+            foreignKeyName: 'child_memberships_user_id_fkey';
+            columns: ['user_id'];
+            isOneToOne: false;
+            referencedRelation: 'users';
+            referencedColumns: ['id'];
+          },
+        ];
+      };
+      child_organizations: {
+        Row: {
+          child_id: string;
+          id: string;
+          organization_id: string;
+        };
+        Insert: {
+          child_id: string;
+          id?: string;
+          organization_id: string;
+        };
+        Update: {
+          child_id?: string;
+          id?: string;
+          organization_id?: string;
+        };
+        Relationships: [
+          {
+            foreignKeyName: 'child_organizations_child_id_fkey';
+            columns: ['child_id'];
+            isOneToOne: false;
+            referencedRelation: 'children';
+            referencedColumns: ['id'];
+          },
+          {
+            foreignKeyName: 'child_organizations_organization_id_fkey';
+            columns: ['organization_id'];
+            isOneToOne: false;
+            referencedRelation: 'organizations';
+            referencedColumns: ['id'];
+          },
+        ];
+      };
+      children: {
+        Row: {
+          birthdate: string;
+          created_by: string;
+          id: string;
+          name: string;
+        };
+        Insert: {
+          birthdate: string;
+          created_by: string;
+          id?: string;
+          name: string;
+        };
+        Update: {
+          birthdate?: string;
+          created_by?: string;
+          id?: string;
+          name?: string;
+        };
+        Relationships: [
+          {
+            foreignKeyName: 'children_created_by_fkey';
+            columns: ['created_by'];
+            isOneToOne: false;
+            referencedRelation: 'users';
+            referencedColumns: ['id'];
+          },
+        ];
+      };
+      events: {
+        Row: {
+          child_id: string;
+          created_at: string;
+          created_by: string;
+          id: string;
+          organization_id: string | null;
+          payload: Json;
+          type: Database['public']['Enums']['EventType'];
+          visibility: Database['public']['Enums']['EventVisibility'];
+        };
+        Insert: {
+          child_id: string;
+          created_at?: string;
+          created_by: string;
+          id?: string;
+          organization_id?: string | null;
+          payload: Json;
+          type: Database['public']['Enums']['EventType'];
+          visibility: Database['public']['Enums']['EventVisibility'];
+        };
+        Update: {
+          child_id?: string;
+          created_at?: string;
+          created_by?: string;
+          id?: string;
+          organization_id?: string | null;
+          payload?: Json;
+          type?: Database['public']['Enums']['EventType'];
+          visibility?: Database['public']['Enums']['EventVisibility'];
+        };
+        Relationships: [
+          {
+            foreignKeyName: 'events_child_id_fkey';
+            columns: ['child_id'];
+            isOneToOne: false;
+            referencedRelation: 'children';
+            referencedColumns: ['id'];
+          },
+          {
+            foreignKeyName: 'events_created_by_fkey';
+            columns: ['created_by'];
+            isOneToOne: false;
+            referencedRelation: 'users';
+            referencedColumns: ['id'];
+          },
+          {
+            foreignKeyName: 'events_organization_id_fkey';
+            columns: ['organization_id'];
+            isOneToOne: false;
+            referencedRelation: 'organizations';
+            referencedColumns: ['id'];
+          },
+        ];
+      };
+      organization_members: {
+        Row: {
+          id: string;
+          organization_id: string;
+          role: Database['public']['Enums']['OrganizationMemberRole'];
+          user_id: string;
+        };
+        Insert: {
+          id?: string;
+          organization_id: string;
+          role: Database['public']['Enums']['OrganizationMemberRole'];
+          user_id: string;
+        };
+        Update: {
+          id?: string;
+          organization_id?: string;
+          role?: Database['public']['Enums']['OrganizationMemberRole'];
+          user_id?: string;
+        };
+        Relationships: [
+          {
+            foreignKeyName: 'organization_members_organization_id_fkey';
+            columns: ['organization_id'];
+            isOneToOne: false;
+            referencedRelation: 'organizations';
+            referencedColumns: ['id'];
+          },
+          {
+            foreignKeyName: 'organization_members_user_id_fkey';
+            columns: ['user_id'];
+            isOneToOne: false;
+            referencedRelation: 'users';
+            referencedColumns: ['id'];
+          },
+        ];
+      };
+      organizations: {
+        Row: {
+          id: string;
+          name: string;
+          type: Database['public']['Enums']['OrganizationType'];
+        };
+        Insert: {
+          id?: string;
+          name: string;
+          type: Database['public']['Enums']['OrganizationType'];
+        };
+        Update: {
+          id?: string;
+          name?: string;
+          type?: Database['public']['Enums']['OrganizationType'];
+        };
+        Relationships: [];
+      };
+      users: {
+        Row: {
+          email: string;
+          id: string;
+        };
+        Insert: {
+          email: string;
+          id: string;
+        };
+        Update: {
+          email?: string;
+          id?: string;
+        };
+        Relationships: [];
+      };
     };
     Views: {
       [_ in never]: never;
     };
     Functions: {
-      [_ in never]: never;
+      create_child_for_current_user: {
+        Args: { p_birthdate: string; p_name: string };
+        Returns: {
+          birthdate: string;
+          created_by: string;
+          id: string;
+          name: string;
+        };
+        SetofOptions: {
+          from: '*';
+          to: 'children';
+          isOneToOne: true;
+          isSetofReturn: false;
+        };
+      };
     };
     Enums: {
-      [_ in never]: never;
+      ChildMembershipRole: 'parent' | 'caregiver' | 'admin';
+      EventType: 'nap' | 'meal' | 'diaper' | 'note' | 'message';
+      EventVisibility: 'all' | 'parents_only' | 'org_only';
+      OrganizationMemberRole: 'owner' | 'staff';
+      OrganizationType: 'daycare';
     };
     CompositeTypes: {
       [_ in never]: never;
@@ -153,6 +400,12 @@ export type CompositeTypes<
 
 export const Constants = {
   public: {
-    Enums: {},
+    Enums: {
+      ChildMembershipRole: ['parent', 'caregiver', 'admin'],
+      EventType: ['nap', 'meal', 'diaper', 'note', 'message'],
+      EventVisibility: ['all', 'parents_only', 'org_only'],
+      OrganizationMemberRole: ['owner', 'staff'],
+      OrganizationType: ['daycare'],
+    },
   },
 } as const;
