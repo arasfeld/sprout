@@ -21,6 +21,11 @@ BEGIN
     RAISE EXCEPTION 'Not authenticated';
   END IF;
 
+  -- Just-in-time sync of the user into public.users
+  INSERT INTO public.users (id, email)
+  VALUES (v_user_id, auth.jwt() ->> 'email')
+  ON CONFLICT (id) DO NOTHING;
+
   v_child_id := gen_random_uuid();
 
   INSERT INTO public.children (id, name, birthdate, created_by)
