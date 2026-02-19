@@ -1,6 +1,7 @@
-import React, { useState } from 'react';
-import { View, StyleSheet } from 'react-native'; // Removed TouchableOpacity
 import { supabase } from '@/services/supabase';
+import React, { useState } from 'react';
+import { StyleSheet, View } from 'react-native';
+import { Button } from './ui/button';
 import {
   Card,
   CardContent,
@@ -9,7 +10,6 @@ import {
   CardTitle,
 } from './ui/card';
 import { Text } from './ui/text';
-import { Button } from './ui/button'; // Import Button component
 
 export function SupabaseTest() {
   const [status, setStatus] = useState<string>('Not tested');
@@ -124,17 +124,11 @@ export function SupabaseTest() {
           </View>
         )}
 
-        <Button
-          style={styles.buttonSpacing} // Apply spacing style here
-          onPress={testSupabaseConnection}
-        >
+        <Button style={styles.buttonSpacing} onPress={testSupabaseConnection}>
           Test Supabase Client
         </Button>
 
-        <Button
-          style={styles.buttonSpacing} // Apply spacing style here
-          onPress={testDataFetch}
-        >
+        <Button style={styles.buttonSpacing} onPress={testDataFetch}>
           Fetch Children Data
         </Button>
 

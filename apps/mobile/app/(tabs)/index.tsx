@@ -1,14 +1,17 @@
+import type { Child } from '@sprout/core';
 import { type Href, useRouter } from 'expo-router';
-import React, { useCallback, useEffect, useState } from 'react';
+import React, { useCallback } from 'react';
 import {
   ActivityIndicator,
   FlatList,
   Pressable,
+  RefreshControl,
   StyleSheet,
   View,
 } from 'react-native';
 import { SafeAreaView } from 'react-native-safe-area-context';
 
+import { Button } from '@/components/ui/button';
 import {
   Item,
   ItemContent,
@@ -17,54 +20,26 @@ import {
   ItemTitle,
 } from '@/components/ui/item';
 import { Text } from '@/components/ui/text';
+import { useChildren } from '@/hooks/queries/use-children';
+import { useRefreshOnFocus } from '@/hooks/use-refresh-on-focus';
 import { useTheme } from '@/hooks/use-theme';
-import { supabase } from '@/services/supabase';
-
-type ChildRow = {
-  id: string;
-  name: string;
-  birthdate: string;
-  created_by: string;
-};
 
 export default function HomeScreen() {
-  const [children, setChildren] = useState<ChildRow[]>([]);
-  const [isLoading, setIsLoading] = useState(true);
-  const [error, setError] = useState<string | null>(null);
   const { colors } = useTheme();
   const router = useRouter();
 
-  const fetchChildren = useCallback(async () => {
-    setError(null);
-    setIsLoading(true);
+  useRefreshOnFocus();
 
-    // RLS on `child_memberships` table automatically filters to the current user.
-    // Then we select the nested child data from that relationship.
-    const { data: memberships, error: fetchError } = await supabase
-      .from('child_memberships')
-      .select('children(*)');
-
-    setIsLoading(false);
-    if (fetchError) {
-      setError(fetchError.message);
-      return;
-    }
-
-    // The query returns membership objects, each with a 'children' property.
-    // We extract the 'children' object from each and filter out any nulls.
-    const childrenData = (memberships ?? [])
-      .map((membership) => membership.children)
-      .filter((child): child is ChildRow => child !== null);
-
-    setChildren(childrenData);
-  }, []);
-
-  useEffect(() => {
-    fetchChildren();
-  }, [fetchChildren]);
+  const {
+    data: children = [],
+    isLoading,
+    error,
+    refetch,
+    isRefetching,
+  } = useChildren();
 
   const handlePressChild = useCallback(
-    (child: ChildRow) => {
+    (child: Child) => {
       router.push({
         pathname: '/(tabs)/child/[id]',
         params: { id: child.id },
@@ -97,8 +72,11 @@ export default function HomeScreen() {
             variant="subtitle"
             style={{ color: colors.destructive, textAlign: 'center' }}
           >
-            {error}
+            {(error as Error).message}
           </Text>
+          <Button onPress={() => refetch()} style={{ marginTop: 16 }}>
+            Try again
+          </Button>
         </View>
       </SafeAreaView>
     );
@@ -110,7 +88,16 @@ export default function HomeScreen() {
       edges={['top']}
     >
       <View style={styles.header}>
-        <Text variant="title">My children</Text>
+        <View style={styles.headerRow}>
+          <Text variant="title">My children</Text>
+          <Button
+            variant="default"
+            size="sm"
+            onPress={() => router.push('/(tabs)/add-child' as Href)}
+          >
+            Add child
+          </Button>
+        </View>
       </View>
       {children.length === 0 ? (
         <View style={[styles.empty, { borderColor: colors.border }]}>
@@ -126,12 +113,27 @@ export default function HomeScreen() {
           >
             Children you add or are linked to will appear here.
           </Text>
+          <Button
+            variant="ghost"
+            size="sm"
+            onPress={() => refetch()}
+            style={{ marginTop: 16 }}
+          >
+            Refresh
+          </Button>
         </View>
       ) : (
         <FlatList
           data={children}
           keyExtractor={(item) => item.id}
           contentContainerStyle={styles.listContent}
+          refreshControl={
+            <RefreshControl
+              refreshing={isRefetching}
+              onRefresh={refetch}
+              tintColor={colors.primary}
+            />
+          }
           renderItem={({ item }) => (
             <Item asChild variant="outline">
               <Pressable
@@ -168,6 +170,12 @@ const styles = StyleSheet.create({
   header: {
     paddingHorizontal: 16,
     paddingVertical: 12,
+  },
+  headerRow: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    justifyContent: 'space-between',
+    gap: 12,
   },
   listContent: {
     paddingHorizontal: 16,

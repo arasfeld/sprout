@@ -3,14 +3,17 @@ import {
   DefaultTheme,
   ThemeProvider as NavigationThemeProvider,
 } from '@react-navigation/native';
+import { QueryClientProvider } from '@tanstack/react-query';
 import { Stack } from 'expo-router';
 import { StatusBar } from 'expo-status-bar';
-import React, { useMemo } from 'react';
+import React, { useEffect, useMemo } from 'react';
+import { AppState } from 'react-native';
 import 'react-native-reanimated';
 
 import { AuthProvider } from '@/components/auth-context';
 import { ThemeProvider as AppThemeProvider } from '@/components/theme-context';
 import { useTheme } from '@/hooks/use-theme';
+import { onAppStateChange, queryClient } from '@/services/query-client';
 
 export const unstable_settings = {
   initialRouteName: 'index',
@@ -18,6 +21,11 @@ export const unstable_settings = {
 
 function Inner() {
   const { mode } = useTheme();
+
+  useEffect(() => {
+    const subscription = AppState.addEventListener('change', onAppStateChange);
+    return () => subscription.remove();
+  }, []);
 
   const navigationTheme = useMemo(
     () => (mode === 'dark' ? DarkTheme : DefaultTheme),
@@ -38,10 +46,12 @@ function Inner() {
 
 export default function RootLayout() {
   return (
-    <AppThemeProvider>
-      <AuthProvider>
-        <Inner />
-      </AuthProvider>
-    </AppThemeProvider>
+    <QueryClientProvider client={queryClient}>
+      <AppThemeProvider>
+        <AuthProvider>
+          <Inner />
+        </AuthProvider>
+      </AppThemeProvider>
+    </QueryClientProvider>
   );
 }

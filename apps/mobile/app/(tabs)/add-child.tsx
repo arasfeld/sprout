@@ -2,8 +2,8 @@ import { useRouter } from 'expo-router';
 import React, { useCallback, useState } from 'react';
 import { KeyboardAvoidingView, Platform, StyleSheet, View } from 'react-native';
 import { SafeAreaView } from 'react-native-safe-area-context';
-import type { Child } from '@sprout/core';
 
+import { useAuth } from '@/components/auth-context';
 import { Button } from '@/components/ui/button';
 import {
   Field,
@@ -14,9 +14,8 @@ import {
 } from '@/components/ui/field';
 import { Input } from '@/components/ui/input';
 import { Text } from '@/components/ui/text';
-import { useAuth } from '@/components/auth-context';
+import { useCreateChild } from '@/hooks/mutations/use-create-child';
 import { useTheme } from '@/hooks/use-theme';
-import { supabase } from '@/services/supabase';
 
 const BIRTHDATE_REGEX = /^\d{4}-\d{2}-\d{2}$/;
 
@@ -38,16 +37,16 @@ export default function AddChildScreen() {
   const router = useRouter();
   const { user } = useAuth();
   const { colors } = useTheme();
+  const { mutateAsync: createChild, isPending: loading } = useCreateChild();
   const [name, setName] = useState('');
   const [birthdate, setBirthdate] = useState('');
   const [error, setError] = useState<string | null>(null);
-  const [loading, setLoading] = useState(false);
   const [fieldErrors, setFieldErrors] = useState<{
     name?: string;
     birthdate?: string;
   }>({});
 
-  const handleSubmit = useCallback(async () => {
+  const handleSubmit = useCallback(() => {
     setError(null);
     setFieldErrors({});
 
@@ -73,31 +72,17 @@ export default function AddChildScreen() {
       return;
     }
 
-    setLoading(true);
-    const { data: inserted, error: rpcError } = await (
-      supabase as unknown as {
-        rpc: (
-          fn: string,
-          params: { p_name: string; p_birthdate: string },
-        ) => Promise<{ data: Child | null; error: { message: string } | null }>;
-      }
-    ).rpc('create_child_for_current_user', {
-      p_name: nameTrimmed,
-      p_birthdate: birthdate.trim(),
-    });
-
-    setLoading(false);
-    if (rpcError) {
-      setError(rpcError.message);
-      return;
-    }
-    if (!inserted?.id) {
-      setError('Failed to create child.');
-      return;
-    }
-
+    // Use mutate (not async) to go back immediately while update happens in background
+    createChild(
+      { name: nameTrimmed, birthdate: birthdate.trim() },
+      {
+        onError: (e) => {
+          setError(e.message);
+        },
+      },
+    );
     router.back();
-  }, [name, birthdate, user?.id, router]);
+  }, [name, birthdate, user?.id, router, createChild]);
 
   const handleBack = useCallback(() => {
     router.back();

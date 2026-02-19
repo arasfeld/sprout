@@ -1,3 +1,4 @@
+import pluginQuery from '@tanstack/eslint-plugin-query';
 import expoConfig from 'eslint-config-expo/flat.js';
 import eslintConfigPrettier from 'eslint-config-prettier';
 import onlyWarn from 'eslint-plugin-only-warn';
@@ -12,6 +13,7 @@ import { globalIgnores } from 'eslint/config';
  * */
 export const config = [
   ...expoConfig,
+  ...pluginQuery.configs['flat/recommended'],
   eslintPluginPrettier,
   eslintConfigPrettier,
   {

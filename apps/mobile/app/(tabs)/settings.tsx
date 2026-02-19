@@ -4,12 +4,12 @@ import { StyleSheet } from 'react-native';
 import { SafeAreaView } from 'react-native-safe-area-context';
 
 import { useAuth } from '@/components/auth-context';
+import { SupabaseTest } from '@/components/supabase-test';
 import { useThemePreferences } from '@/components/theme-context';
 import { Button } from '@/components/ui/button';
 import { FieldGroup, FieldLegend, FieldSet } from '@/components/ui/field';
 import { SegmentedControl } from '@/components/ui/segmented-control';
 import { Separator } from '@/components/ui/separator';
-import { SupabaseTest } from '@/components/supabase-test';
 
 export default function SettingsScreen() {
   const { mode, setMode, isLoading } = useThemePreferences();

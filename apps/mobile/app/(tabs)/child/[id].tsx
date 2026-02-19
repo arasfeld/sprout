@@ -1,5 +1,5 @@
 import { useLocalSearchParams, useRouter } from 'expo-router';
-import React, { useCallback, useEffect, useState } from 'react';
+import React, { useCallback } from 'react';
 import { ActivityIndicator, StyleSheet, View } from 'react-native';
 import { SafeAreaView } from 'react-native-safe-area-context';
 
@@ -7,60 +7,15 @@ import { Button } from '@/components/ui/button';
 import { FieldContent, FieldLegend, FieldSet } from '@/components/ui/field';
 import { Separator } from '@/components/ui/separator';
 import { Text } from '@/components/ui/text';
+import { useChild } from '@/hooks/queries/use-child';
 import { useTheme } from '@/hooks/use-theme';
-import { supabase } from '@/services/supabase';
-
-type ChildRow = {
-  id: string;
-  name: string;
-  birthdate: string;
-  created_by: string;
-};
 
 export default function ChildDetailScreen() {
   const { id } = useLocalSearchParams<{ id: string }>();
-  const [child, setChild] = useState<ChildRow | null>(null);
-  const [isLoading, setIsLoading] = useState(true);
-  const [error, setError] = useState<string | null>(null);
   const { colors } = useTheme();
   const router = useRouter();
 
-  const fetchChild = useCallback(async () => {
-    if (!id) return;
-    setError(null);
-    const { data, error: fetchError } = await (
-      supabase as unknown as {
-        from: (table: string) => {
-          select: (cols: string) => {
-            eq: (
-              col: string,
-              val: string,
-            ) => {
-              single: () => Promise<{
-                data: ChildRow | null;
-                error: { message: string } | null;
-              }>;
-            };
-          };
-        };
-      }
-    )
-      .from('children')
-      .select('*')
-      .eq('id', id)
-      .single();
-
-    setIsLoading(false);
-    if (fetchError) {
-      setError(fetchError.message);
-      return;
-    }
-    setChild(data);
-  }, [id]);
-
-  useEffect(() => {
-    fetchChild();
-  }, [fetchChild]);
+  const { data: child, isLoading, error, refetch } = useChild(id ?? '');
 
   const handleBack = useCallback(() => {
     router.back();
@@ -90,10 +45,13 @@ export default function ChildDetailScreen() {
             variant="subtitle"
             style={{ color: colors.destructive, textAlign: 'center' }}
           >
-            {error ?? 'Child not found'}
+            {error instanceof Error ? error.message : 'Child not found'}
           </Text>
-          <Button onPress={handleBack} style={styles.backButton}>
-            Back
+          <Button
+            onPress={() => (error ? refetch() : handleBack())}
+            style={styles.backButton}
+          >
+            {error ? 'Try again' : 'Back'}
           </Button>
         </View>
       </SafeAreaView>

@@ -110,6 +110,8 @@ Currently active: `apps/mobile`, config packages, and `packages/supabase`. The m
 
 **Platform-specific files:** Use `.ios.tsx`, `.android.tsx`, `.web.ts` suffixes.
 
+**Platform checks:** Always use `Platform.OS` for runtime platform detection (never use `process.env.EXPO_OS`).
+
 ## Design System
 
 We use a **shadcn-inspired design system** for React Native.
