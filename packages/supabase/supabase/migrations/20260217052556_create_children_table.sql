@@ -10,3 +10,6 @@ CREATE TABLE "public"."children" (
 
 -- AddForeignKey
 ALTER TABLE "public"."children" ADD CONSTRAINT "children_created_by_fkey" FOREIGN KEY ("created_by") REFERENCES "public"."users"("id") ON DELETE RESTRICT ON UPDATE CASCADE;
+
+-- AddIndex
+CREATE INDEX IF NOT EXISTS "children_created_by_idx" ON "public"."children" ("created_by");

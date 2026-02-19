@@ -27,6 +27,11 @@ ALTER TABLE "public"."events" ADD CONSTRAINT "events_created_by_fkey" FOREIGN KE
 -- AddForeignKey
 ALTER TABLE "public"."events" ADD CONSTRAINT "events_organization_id_fkey" FOREIGN KEY ("organization_id") REFERENCES "public"."organizations"("id") ON DELETE SET NULL ON UPDATE CASCADE;
 
+-- AddIndexes
+CREATE INDEX IF NOT EXISTS "events_child_id_idx" ON "public"."events" ("child_id");
+CREATE INDEX IF NOT EXISTS "events_created_by_idx" ON "public"."events" ("created_by");
+CREATE INDEX IF NOT EXISTS "events_organization_id_idx" ON "public"."events" ("organization_id");
+
 -- Enable Row Level Security on public.events
 ALTER TABLE "public"."events" ENABLE ROW LEVEL SECURITY;
 

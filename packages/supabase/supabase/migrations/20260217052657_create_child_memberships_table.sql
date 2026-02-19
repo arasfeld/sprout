@@ -22,6 +22,11 @@ ALTER TABLE "public"."child_memberships" ADD CONSTRAINT "child_memberships_user_
 -- AddForeignKey
 ALTER TABLE "public"."child_memberships" ADD CONSTRAINT "child_memberships_organization_id_fkey" FOREIGN KEY ("organization_id") REFERENCES "public"."organizations"("id") ON DELETE SET NULL ON UPDATE CASCADE;
 
+-- AddIndexes
+CREATE INDEX IF NOT EXISTS "child_memberships_child_id_idx" ON "public"."child_memberships" ("child_id");
+CREATE INDEX IF NOT EXISTS "child_memberships_user_id_idx" ON "public"."child_memberships" ("user_id");
+CREATE INDEX IF NOT EXISTS "child_memberships_organization_id_idx" ON "public"."child_memberships" ("organization_id");
+
 -- Enable Row Level Security on public.child_memberships
 ALTER TABLE "public"."child_memberships" ENABLE ROW LEVEL SECURITY;
 

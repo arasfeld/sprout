@@ -15,6 +15,7 @@
     "supabase:link": "supabase link --workdir .",
     "supabase:pull": "supabase db pull --workdir .",
     "supabase:push": "supabase db push --workdir . --local",
+    "supabase:reset": "supabase db reset --workdir .",
     "supabase:seed": "supabase db seed --workdir .",
     "supabase:start": "pnpx supabase start --workdir .",
     "supabase:stop": "pnpx supabase stop --workdir ."

@@ -13,6 +13,10 @@ ALTER TABLE "public"."child_organizations" ADD CONSTRAINT "child_organizations_c
 -- AddForeignKey
 ALTER TABLE "public"."child_organizations" ADD CONSTRAINT "child_organizations_organization_id_fkey" FOREIGN KEY ("organization_id") REFERENCES "public"."organizations"("id") ON DELETE RESTRICT ON UPDATE CASCADE;
 
+-- AddIndexes
+CREATE INDEX IF NOT EXISTS "child_organizations_child_id_idx" ON "public"."child_organizations" ("child_id");
+CREATE INDEX IF NOT EXISTS "child_organizations_organization_id_idx" ON "public"."child_organizations" ("organization_id");
+
 -- Enable Row Level Security on public.child_organizations
 ALTER TABLE "public"."child_organizations" ENABLE ROW LEVEL SECURITY;
 

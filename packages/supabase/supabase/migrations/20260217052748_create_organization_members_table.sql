@@ -17,6 +17,10 @@ ALTER TABLE "public"."organization_members" ADD CONSTRAINT "organization_members
 -- AddForeignKey
 ALTER TABLE "public"."organization_members" ADD CONSTRAINT "organization_members_user_id_fkey" FOREIGN KEY ("user_id") REFERENCES "public"."users"("id") ON DELETE RESTRICT ON UPDATE CASCADE;
 
+-- AddIndexes
+CREATE INDEX IF NOT EXISTS "organization_members_organization_id_idx" ON "public"."organization_members" ("organization_id");
+CREATE INDEX IF NOT EXISTS "organization_members_user_id_idx" ON "public"."organization_members" ("user_id");
+
 -- Enable Row Level Security on public.organization_members
 ALTER TABLE "public"."organization_members" ENABLE ROW LEVEL SECURITY;
 
