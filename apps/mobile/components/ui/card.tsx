@@ -3,9 +3,9 @@ import {
   StyleSheet,
   View,
   type StyleProp,
-  type ViewStyle,
-  type TextStyle,
   type TextProps,
+  type TextStyle,
+  type ViewStyle,
 } from 'react-native';
 
 import type { Theme } from '@/hooks/use-theme';
@@ -218,6 +218,8 @@ function createCardStyles(theme: Theme) {
       borderWidth: 1,
       borderColor: theme.colors.border,
       backgroundColor: theme.colors.background,
+      flexShrink: 1,
+      minHeight: 0,
     },
     padded: {
       padding: theme.spacing.lg,
@@ -288,6 +290,8 @@ function createCardContentStyles(theme: Theme) {
       paddingHorizontal: theme.spacing.lg,
       paddingTop: 0,
       paddingBottom: theme.spacing.lg,
+      flexShrink: 1,
+      minHeight: 0,
     },
   });
 }

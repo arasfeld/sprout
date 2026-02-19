@@ -251,6 +251,9 @@ function createContentStyles() {
     root: {
       flex: 1,
       flexDirection: 'column',
+      flexShrink: 1,
+      minWidth: 0,
+      justifyContent: 'center',
     },
   });
 }
@@ -286,9 +289,9 @@ function createTitleStyles(theme: Theme) {
     },
     text: {
       color: colors.foreground,
-      fontSize: typography.fontSize.sm,
+      fontSize: typography.fontSize.lg,
       fontWeight: typography.fontWeight.medium,
-      lineHeight: typography.fontSize.sm * typography.lineHeight.tight,
+      lineHeight: typography.fontSize.lg * typography.lineHeight.normal,
     },
   });
 }
@@ -306,7 +309,7 @@ export function ItemDescription({
   const theme = useTheme();
   const styles = useMemo(() => createDescriptionStyles(theme), [theme]);
   const fontSize =
-    size === 'xs' ? theme.typography.fontSize.xs : theme.typography.fontSize.sm;
+    size === 'xs' ? theme.typography.fontSize.sm : theme.typography.fontSize.md;
 
   return (
     <View style={[styles.root, style]} {...props}>
@@ -334,8 +337,9 @@ function createDescriptionStyles(theme: Theme) {
     text: {
       color: colors.mutedForeground,
       fontFamily: undefined,
+      fontSize: typography.fontSize.md,
       fontWeight: typography.fontWeight.normal,
-      lineHeight: typography.fontSize.sm * typography.lineHeight.normal,
+      lineHeight: typography.fontSize.md * typography.lineHeight.normal,
       textAlign: 'left',
     },
   });

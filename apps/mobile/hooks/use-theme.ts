@@ -18,7 +18,7 @@ export function useTheme(): Theme {
   try {
     const prefs = useThemePreferences();
     preferredMode = prefs.mode;
-  } catch (e) {
+  } catch {
     // If provider is not mounted, fall back to system
     preferredMode = 'system';
   }

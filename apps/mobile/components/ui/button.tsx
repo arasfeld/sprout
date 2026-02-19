@@ -266,6 +266,7 @@ function createStyles(theme: Theme) {
       alignItems: 'center',
       flexDirection: 'row',
       justifyContent: 'center',
+      minWidth: 64,
     },
     disabled: {
       opacity: 0.5,

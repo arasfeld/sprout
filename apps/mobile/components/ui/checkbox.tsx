@@ -13,6 +13,9 @@ const CHECKBOX_SIZES: Record<CheckboxSize, { box: number; icon: number }> = {
   lg: { box: 24, icon: 22 },
 };
 
+/** Minimum touch target size for accessibility (pt). */
+const MIN_TOUCH_TARGET = 44;
+
 export interface CheckboxProps {
   checked?: boolean;
   defaultChecked?: boolean;
@@ -92,6 +95,8 @@ function createStyles(theme: Theme, dimensions: { box: number; icon: number }) {
       height: box,
       justifyContent: 'center',
       width: box,
+      minWidth: MIN_TOUCH_TARGET,
+      minHeight: MIN_TOUCH_TARGET,
     },
     checked: {
       backgroundColor: colors.primary,

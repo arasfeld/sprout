@@ -18,6 +18,9 @@ const RADIO_SIZES: Record<RadioSize, { outer: number; inner: number }> = {
   lg: { outer: 24, inner: 12 },
 };
 
+/** Minimum touch target size for accessibility (pt). */
+const MIN_TOUCH_TARGET = 44;
+
 interface RadioGroupContextValue {
   disabled?: boolean;
   onValueChange: (value: string) => void;
@@ -176,6 +179,8 @@ function createItemStyles(
       height: outer,
       justifyContent: 'center',
       width: outer,
+      minWidth: MIN_TOUCH_TARGET,
+      minHeight: MIN_TOUCH_TARGET,
     },
     selected: {
       borderColor: colors.primary,

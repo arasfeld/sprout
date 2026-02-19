@@ -1,5 +1,6 @@
 import React, { useCallback, useMemo, useState } from 'react';
 import {
+  Platform,
   StyleSheet,
   TextInput,
   View,
@@ -15,6 +16,9 @@ export interface InputProps extends Omit<TextInputProps, 'style'> {
   /** When true, shows destructive border styling */
   invalid?: boolean;
 }
+
+/** Line height multiplier for input text so descenders aren't clipped (iOS). */
+const INPUT_LINE_HEIGHT_MULTIPLIER = 1.35;
 
 export function Input({
   containerStyle,
@@ -45,23 +49,32 @@ export function Input({
     [onBlur],
   );
 
+  const fontSize = typography.fontSize.md;
+  const lineHeight = Math.ceil(fontSize * INPUT_LINE_HEIGHT_MULTIPLIER);
+  const minHeight = Math.max(48, lineHeight + 2 * 12);
+  const paddingVertical = Math.max(0, Math.floor((minHeight - lineHeight) / 2));
+
+  const borderColor = invalid
+    ? colors.destructive
+    : isFocused
+      ? colors.ring
+      : colors.border;
+
   const inputStyle = useMemo((): TextStyle[] => {
     const base: TextStyle[] = [
       styles.input,
       {
         backgroundColor:
           theme.mode === 'dark' ? `${colors.input}4D` : colors.input,
-        borderColor: colors.border,
+        borderColor,
         borderRadius: radius.md,
         color: colors.foreground,
-        fontSize: typography.fontSize.md,
+        fontSize,
+        lineHeight,
+        minHeight,
+        paddingVertical,
       },
     ];
-    if (invalid) {
-      base.push({ borderColor: colors.destructive, borderWidth: 2 });
-    } else if (isFocused) {
-      base.push({ borderColor: colors.ring, borderWidth: 2 });
-    }
     if (!editable) {
       base.push({
         backgroundColor:
@@ -73,19 +86,18 @@ export function Input({
   }, [
     theme.mode,
     colors.input,
-    colors.border,
     colors.foreground,
-    colors.destructive,
-    colors.ring,
+    borderColor,
     radius.md,
-    typography.fontSize.md,
-    invalid,
-    isFocused,
+    fontSize,
+    lineHeight,
+    minHeight,
+    paddingVertical,
     editable,
   ]);
 
   return (
-    <View style={[styles.wrapper, containerStyle]}>
+    <View style={[styles.wrapper, { minHeight }, containerStyle]}>
       <TextInput
         editable={editable}
         placeholderTextColor={colors.mutedForeground}
@@ -93,6 +105,7 @@ export function Input({
         secureTextEntry={secureTextEntry}
         onFocus={handleFocus}
         onBlur={handleBlur}
+        {...(Platform.OS === 'android' && { includeFontPadding: false })}
         {...rest}
       />
     </View>
@@ -104,10 +117,8 @@ const styles = StyleSheet.create({
     width: '100%',
   },
   input: {
-    borderWidth: 1,
+    borderWidth: 2,
     paddingHorizontal: 12,
-    paddingVertical: 12,
-    minHeight: 44,
     minWidth: 0,
   },
 });

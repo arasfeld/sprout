@@ -54,12 +54,14 @@ function createStyles(theme: Theme) {
       color: colors.foreground,
       fontSize: typography.fontSize.xxxl,
       fontWeight: typography.fontWeight.bold,
+      lineHeight: typography.fontSize.xxxl * typography.lineHeight.normal,
       marginBottom: 8,
     },
     subtitle: {
       color: colors.foreground,
       fontSize: typography.fontSize.xl,
       fontWeight: typography.fontWeight.bold,
+      lineHeight: typography.fontSize.xl * typography.lineHeight.normal,
       marginBottom: 12,
     },
     body: {
@@ -84,6 +86,7 @@ function createStyles(theme: Theme) {
       color: colors.mutedForeground,
       fontSize: typography.fontSize.sm,
       fontWeight: typography.fontWeight.semibold,
+      lineHeight: typography.fontSize.sm * typography.lineHeight.normal,
       letterSpacing: 0.5,
       textTransform: 'uppercase',
     },

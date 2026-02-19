@@ -248,7 +248,7 @@ function createFieldSetStyles(theme: Theme) {
   return StyleSheet.create({
     fieldSet: {
       flexDirection: 'column',
-      gap: theme.spacing.md,
+      gap: theme.spacing.lg,
       width: '100%',
     },
   });
@@ -287,7 +287,7 @@ function createFieldStyles(
   return StyleSheet.create({
     field: {
       flexDirection: orientation === 'horizontal' ? 'row' : 'column',
-      gap: theme.spacing.sm,
+      gap: theme.spacing.md,
       width: '100%',
       ...(orientation === 'horizontal' && {
         alignItems: 'center',
@@ -298,10 +298,10 @@ function createFieldStyles(
 
 const fieldContentStyles = StyleSheet.create({
   fieldContent: {
-    flex: 1,
     flexDirection: 'column',
-    gap: 2,
+    gap: 6,
     minWidth: 0,
+    width: '100%',
   },
 });
 
@@ -379,6 +379,7 @@ function createFieldErrorStyles(theme: Theme) {
     },
     fieldError: {
       width: '100%',
+      paddingVertical: 4,
     },
   });
 }
