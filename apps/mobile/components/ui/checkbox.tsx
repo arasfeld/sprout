@@ -1,9 +1,10 @@
-import { Ionicons } from '@expo/vector-icons';
 import React, { useMemo } from 'react';
 import { Pressable, StyleSheet, type ViewStyle } from 'react-native';
 
 import type { Theme } from '@/hooks/use-theme';
 import { useTheme } from '@/hooks/use-theme';
+
+import { IconSymbol } from './icon-symbol';
 
 export type CheckboxSize = 'sm' | 'md' | 'lg';
 
@@ -72,7 +73,7 @@ export function Checkbox({
       accessibilityLabel="Checkbox"
     >
       {checked ? (
-        <Ionicons
+        <IconSymbol
           color={theme.colors.primaryForeground}
           name="checkmark"
           size={dimensions.icon}

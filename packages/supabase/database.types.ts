@@ -7,6 +7,31 @@ export type Json =
   | Json[];
 
 export type Database = {
+  graphql_public: {
+    Tables: {
+      [_ in never]: never;
+    };
+    Views: {
+      [_ in never]: never;
+    };
+    Functions: {
+      graphql: {
+        Args: {
+          extensions?: Json;
+          operationName?: string;
+          query?: string;
+          variables?: Json;
+        };
+        Returns: Json;
+      };
+    };
+    Enums: {
+      [_ in never]: never;
+    };
+    CompositeTypes: {
+      [_ in never]: never;
+    };
+  };
   public: {
     Tables: {
       child_memberships: {
@@ -93,22 +118,28 @@ export type Database = {
       };
       children: {
         Row: {
+          avatar_url: string | null;
           birthdate: string;
           created_by: string;
           id: string;
           name: string;
+          sex: Database['public']['Enums']['Sex'] | null;
         };
         Insert: {
+          avatar_url?: string | null;
           birthdate: string;
           created_by: string;
           id?: string;
           name: string;
+          sex?: Database['public']['Enums']['Sex'] | null;
         };
         Update: {
+          avatar_url?: string | null;
           birthdate?: string;
           created_by?: string;
           id?: string;
           name?: string;
+          sex?: Database['public']['Enums']['Sex'] | null;
         };
         Relationships: [
           {
@@ -250,12 +281,19 @@ export type Database = {
     };
     Functions: {
       create_child_for_current_user: {
-        Args: { p_birthdate: string; p_name: string };
+        Args: {
+          p_avatar_url?: string;
+          p_birthdate: string;
+          p_name: string;
+          p_sex?: Database['public']['Enums']['Sex'];
+        };
         Returns: {
+          avatar_url: string | null;
           birthdate: string;
           created_by: string;
           id: string;
           name: string;
+          sex: Database['public']['Enums']['Sex'] | null;
         };
         SetofOptions: {
           from: '*';
@@ -271,6 +309,7 @@ export type Database = {
       EventVisibility: 'all' | 'parents_only' | 'org_only';
       OrganizationMemberRole: 'owner' | 'staff';
       OrganizationType: 'daycare';
+      Sex: 'male' | 'female';
     };
     CompositeTypes: {
       [_ in never]: never;
@@ -399,6 +438,9 @@ export type CompositeTypes<
     : never;
 
 export const Constants = {
+  graphql_public: {
+    Enums: {},
+  },
   public: {
     Enums: {
       ChildMembershipRole: ['parent', 'caregiver', 'admin'],
@@ -406,6 +448,7 @@ export const Constants = {
       EventVisibility: ['all', 'parents_only', 'org_only'],
       OrganizationMemberRole: ['owner', 'staff'],
       OrganizationType: ['daycare'],
+      Sex: ['male', 'female'],
     },
   },
 } as const;

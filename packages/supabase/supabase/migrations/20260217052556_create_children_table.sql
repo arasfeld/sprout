@@ -1,8 +1,13 @@
+-- CreateEnum
+CREATE TYPE "public"."Sex" AS ENUM ('male', 'female');
+
 -- CreateTable
 CREATE TABLE "public"."children" (
     "id" UUID NOT NULL DEFAULT gen_random_uuid(),
     "name" TEXT NOT NULL,
     "birthdate" DATE NOT NULL,
+    "sex" "public"."Sex",
+    "avatar_url" TEXT,
     "created_by" UUID NOT NULL,
 
     CONSTRAINT "children_pkey" PRIMARY KEY ("id")

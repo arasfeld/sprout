@@ -1,4 +1,3 @@
-import { Ionicons } from '@expo/vector-icons';
 import React, { useMemo, useState } from 'react';
 import {
   FlatList,
@@ -12,6 +11,7 @@ import {
 import type { Theme } from '@/hooks/use-theme';
 import { useTheme } from '@/hooks/use-theme';
 
+import { IconSymbol } from './icon-symbol';
 import { Text } from './text';
 
 const OVERLAY_BG = 'rgba(0,0,0,0.5)';
@@ -70,8 +70,8 @@ export function Select({
         >
           {selectedOption?.label || placeholder}
         </Text>
-        <Ionicons
-          name="chevron-down"
+        <IconSymbol
+          name="chevron.down"
           size={20}
           color={theme.colors.mutedForeground}
         />
@@ -92,8 +92,8 @@ export function Select({
             <View style={styles.modalHeader}>
               <Text style={styles.modalTitle}>{label || 'Select'}</Text>
               <TouchableOpacity onPress={() => setIsOpen(false)}>
-                <Ionicons
-                  name="close"
+                <IconSymbol
+                  name="xmark"
                   size={24}
                   color={theme.colors.foreground}
                 />
@@ -120,7 +120,7 @@ export function Select({
                     {item.label}
                   </Text>
                   {item.value === value && (
-                    <Ionicons
+                    <IconSymbol
                       name="checkmark"
                       size={20}
                       color={theme.colors.primary}

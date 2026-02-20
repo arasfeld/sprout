@@ -8,10 +8,14 @@ export interface User {
 }
 
 // children table
+export type Sex = 'male' | 'female';
+
 export interface Child {
   id: UUID;
   name: string;
   birthdate: string; // ISO date string
+  sex: Sex | null;
+  avatar_url: string | null;
   created_by: UUID;
 }
 

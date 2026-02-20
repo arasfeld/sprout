@@ -4,7 +4,9 @@
 
 CREATE OR REPLACE FUNCTION public.create_child_for_current_user(
   p_name text,
-  p_birthdate date
+  p_birthdate date,
+  p_sex public."Sex" DEFAULT NULL,
+  p_avatar_url text DEFAULT NULL
 )
 RETURNS public.children
 LANGUAGE plpgsql
@@ -28,8 +30,8 @@ BEGIN
 
   v_child_id := gen_random_uuid();
 
-  INSERT INTO public.children (id, name, birthdate, created_by)
-  VALUES (v_child_id, p_name, p_birthdate, v_user_id);
+  INSERT INTO public.children (id, name, birthdate, sex, avatar_url, created_by)
+  VALUES (v_child_id, p_name, p_birthdate, p_sex, p_avatar_url, v_user_id);
 
   INSERT INTO public.child_memberships (child_id, user_id, role)
   VALUES (v_child_id, v_user_id, 'parent'::public."ChildMembershipRole");
@@ -39,5 +41,5 @@ BEGIN
 END;
 $$;
 
-GRANT EXECUTE ON FUNCTION public.create_child_for_current_user(text, date) TO anon;
-GRANT EXECUTE ON FUNCTION public.create_child_for_current_user(text, date) TO authenticated;
+GRANT EXECUTE ON FUNCTION public.create_child_for_current_user(text, date, public."Sex", text) TO anon;
+GRANT EXECUTE ON FUNCTION public.create_child_for_current_user(text, date, public."Sex", text) TO authenticated;

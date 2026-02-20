@@ -1,4 +1,4 @@
-import type { Child } from '@sprout/core';
+import type { Child, Sex } from '@sprout/core';
 import { useMutation, useQueryClient } from '@tanstack/react-query';
 
 import { useAuth } from '@/components/auth-context';
@@ -8,6 +8,8 @@ import { supabase } from '@/services/supabase';
 interface CreateChildParams {
   name: string;
   birthdate: string;
+  sex?: Sex | null;
+  avatar_url?: string | null;
 }
 
 interface MutationContext {
@@ -19,12 +21,19 @@ export function useCreateChild() {
   const { user } = useAuth();
 
   return useMutation<Child, Error, CreateChildParams, MutationContext>({
-    mutationFn: async ({ name, birthdate }: CreateChildParams) => {
+    mutationFn: async ({
+      name,
+      birthdate,
+      sex,
+      avatar_url,
+    }: CreateChildParams) => {
       const { data: inserted, error: rpcError } = await supabase.rpc(
         'create_child_for_current_user',
         {
           p_name: name.trim(),
           p_birthdate: birthdate.trim(),
+          p_sex: sex ?? undefined,
+          p_avatar_url: avatar_url ?? undefined,
         },
       );
 
@@ -56,6 +65,8 @@ export function useCreateChild() {
             id: 'temp-id-' + Date.now(),
             name: newChild.name.trim(),
             birthdate: newChild.birthdate.trim(),
+            sex: newChild.sex ?? null,
+            avatar_url: newChild.avatar_url ?? null,
             created_by: user.id,
           },
         ]);

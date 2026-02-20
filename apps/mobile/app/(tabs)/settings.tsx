@@ -4,7 +4,6 @@ import { StyleSheet } from 'react-native';
 import { SafeAreaView } from 'react-native-safe-area-context';
 
 import { useAuth } from '@/components/auth-context';
-import { SupabaseTest } from '@/components/supabase-test';
 import { useThemePreferences } from '@/components/theme-context';
 import { Button } from '@/components/ui/button';
 import { FieldGroup, FieldLegend, FieldSet } from '@/components/ui/field';
@@ -63,8 +62,6 @@ export default function SettingsScreen() {
           <FieldLegend>Account</FieldLegend>
           <Button onPress={handleSignOut}>Sign out</Button>
         </FieldGroup>
-        <Separator style={styles.separator} />
-        <SupabaseTest />
       </FieldSet>
     </SafeAreaView>
   );

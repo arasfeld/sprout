@@ -4,12 +4,13 @@ import type { UserPreferences } from '../types/preferences';
 export const USER_PREFERENCES_KEY = '@sprout:preferences';
 
 export class StorageService {
-  static async savePreferences(preferences: UserPreferences): Promise<void> {
+  static async savePreferences(
+    preferences: Partial<UserPreferences>,
+  ): Promise<void> {
     try {
-      await AsyncStorage.setItem(
-        USER_PREFERENCES_KEY,
-        JSON.stringify(preferences),
-      );
+      const existing = await this.getPreferences();
+      const updated = { ...existing, ...preferences };
+      await AsyncStorage.setItem(USER_PREFERENCES_KEY, JSON.stringify(updated));
     } catch (error) {
       console.error('Error saving preferences:', error);
       throw new Error('Failed to save preferences');

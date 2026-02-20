@@ -8,9 +8,12 @@ import { Stack } from 'expo-router';
 import { StatusBar } from 'expo-status-bar';
 import React, { useEffect, useMemo } from 'react';
 import { AppState } from 'react-native';
+import { GestureHandlerRootView } from 'react-native-gesture-handler';
 import 'react-native-reanimated';
 
+import { BottomSheetModalProvider } from '@gorhom/bottom-sheet';
 import { AuthProvider } from '@/components/auth-context';
+import { ChildProvider } from '@/components/child-context';
 import { ThemeProvider as AppThemeProvider } from '@/components/theme-context';
 import { useTheme } from '@/hooks/use-theme';
 import { onAppStateChange, queryClient } from '@/services/query-client';
@@ -38,8 +41,15 @@ function Inner() {
         <Stack.Screen name="index" options={{ headerShown: false }} />
         <Stack.Screen name="(tabs)" options={{ headerShown: false }} />
         <Stack.Screen name="(auth)" options={{ headerShown: false }} />
+        <Stack.Screen
+          name="add-child"
+          options={{
+            title: 'Add child',
+            headerBackTitle: 'Cancel',
+          }}
+        />
       </Stack>
-      <StatusBar style="auto" />
+      <StatusBar animated style={mode === 'dark' ? 'light' : 'dark'} />
     </NavigationThemeProvider>
   );
 }
@@ -48,9 +58,15 @@ export default function RootLayout() {
   return (
     <QueryClientProvider client={queryClient}>
       <AppThemeProvider>
-        <AuthProvider>
-          <Inner />
-        </AuthProvider>
+        <GestureHandlerRootView style={{ flex: 1 }}>
+          <BottomSheetModalProvider>
+            <AuthProvider>
+              <ChildProvider>
+                <Inner />
+              </ChildProvider>
+            </AuthProvider>
+          </BottomSheetModalProvider>
+        </GestureHandlerRootView>
       </AppThemeProvider>
     </QueryClientProvider>
   );
