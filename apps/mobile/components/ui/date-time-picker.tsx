@@ -6,12 +6,13 @@ import { useTheme } from '@/hooks/use-theme';
 export function DateTimePicker(
   props: ComponentPropsWithoutRef<typeof RNDateTimePicker>,
 ) {
-  const { colors } = useTheme();
+  const { colors, mode } = useTheme();
 
   return (
     <RNDateTimePicker
       accentColor={colors.primary}
       textColor={colors.foreground}
+      themeVariant={mode}
       {...props}
     />
   );

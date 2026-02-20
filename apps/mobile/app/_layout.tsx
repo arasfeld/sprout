@@ -1,42 +1,23 @@
-import {
-  DarkTheme,
-  DefaultTheme,
-  ThemeProvider as NavigationThemeProvider,
-} from '@react-navigation/native';
-import { QueryClientProvider } from '@tanstack/react-query';
 import { Stack } from 'expo-router';
-import { StatusBar } from 'expo-status-bar';
-import React, { useEffect, useMemo } from 'react';
+import React, { useEffect } from 'react';
 import { AppState } from 'react-native';
-import { GestureHandlerRootView } from 'react-native-gesture-handler';
 import 'react-native-reanimated';
 
-import { BottomSheetModalProvider } from '@gorhom/bottom-sheet';
-import { AuthProvider } from '@/components/auth-context';
-import { ChildProvider } from '@/components/child-context';
-import { ThemeProvider as AppThemeProvider } from '@/components/theme-context';
-import { useTheme } from '@/hooks/use-theme';
-import { onAppStateChange, queryClient } from '@/services/query-client';
+import { Providers } from '@/components/providers';
+import { onAppStateChange } from '@/services/query-client';
 
 export const unstable_settings = {
   initialRouteName: 'index',
 };
 
-function Inner() {
-  const { mode } = useTheme();
-
+export default function RootLayout() {
   useEffect(() => {
     const subscription = AppState.addEventListener('change', onAppStateChange);
     return () => subscription.remove();
   }, []);
 
-  const navigationTheme = useMemo(
-    () => (mode === 'dark' ? DarkTheme : DefaultTheme),
-    [mode],
-  );
-
   return (
-    <NavigationThemeProvider value={navigationTheme}>
+    <Providers>
       <Stack>
         <Stack.Screen name="index" options={{ headerShown: false }} />
         <Stack.Screen name="(tabs)" options={{ headerShown: false }} />
@@ -48,26 +29,43 @@ function Inner() {
             headerBackTitle: 'Cancel',
           }}
         />
+        <Stack.Screen
+          name="events/feed"
+          options={{
+            title: 'Log Feed',
+          }}
+        />
+        <Stack.Screen
+          name="events/sleep"
+          options={{
+            title: 'Log Sleep',
+          }}
+        />
+        <Stack.Screen
+          name="events/diaper"
+          options={{
+            title: 'Log Diaper',
+          }}
+        />
+        <Stack.Screen
+          name="events/growth"
+          options={{
+            title: 'Log Growth',
+          }}
+        />
+        <Stack.Screen
+          name="events/meds"
+          options={{
+            title: 'Log Meds',
+          }}
+        />
+        <Stack.Screen
+          name="events/activity"
+          options={{
+            title: 'Log Activity',
+          }}
+        />
       </Stack>
-      <StatusBar animated style={mode === 'dark' ? 'light' : 'dark'} />
-    </NavigationThemeProvider>
-  );
-}
-
-export default function RootLayout() {
-  return (
-    <QueryClientProvider client={queryClient}>
-      <AppThemeProvider>
-        <GestureHandlerRootView style={{ flex: 1 }}>
-          <BottomSheetModalProvider>
-            <AuthProvider>
-              <ChildProvider>
-                <Inner />
-              </ChildProvider>
-            </AuthProvider>
-          </BottomSheetModalProvider>
-        </GestureHandlerRootView>
-      </AppThemeProvider>
-    </QueryClientProvider>
+    </Providers>
   );
 }

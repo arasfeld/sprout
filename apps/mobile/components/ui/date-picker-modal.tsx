@@ -19,6 +19,7 @@ interface DatePickerModalProps {
   value: Date;
   title?: string;
   maximumDate?: Date;
+  mode?: 'date' | 'time' | 'datetime';
 }
 
 export type DatePickerModalRef = BottomSheetRef;
@@ -26,72 +27,79 @@ export type DatePickerModalRef = BottomSheetRef;
 export const DatePickerModal = forwardRef<
   DatePickerModalRef,
   DatePickerModalProps
->(({ onClose, onSave, value, title = 'Enter date', maximumDate }, ref) => {
-  const [tempDate, setTempDate] = useState<Date>(value);
-  const bottomSheetRef = useRef<BottomSheetRef>(null);
-
-  useImperativeHandle(ref, () => ({
-    open() {
-      setTempDate(value);
-      bottomSheetRef.current?.open();
+>(
+  (
+    {
+      onClose,
+      onSave,
+      value,
+      title = 'Enter date',
+      maximumDate,
+      mode = 'date',
     },
-    close() {
+    ref,
+  ) => {
+    const [tempDate, setTempDate] = useState<Date>(value);
+    const bottomSheetRef = useRef<BottomSheetRef>(null);
+
+    useImperativeHandle(ref, () => ({
+      open() {
+        setTempDate(value);
+        bottomSheetRef.current?.open();
+      },
+      close() {
+        bottomSheetRef.current?.close();
+      },
+    }));
+
+    const onDateChange = useCallback(
+      (_event: DateTimePickerEvent, selectedDate?: Date) => {
+        if (selectedDate) {
+          setTempDate(selectedDate);
+        }
+      },
+      [],
+    );
+
+    const handleSave = useCallback(() => {
+      onSave(tempDate);
       bottomSheetRef.current?.close();
-    },
-  }));
+    }, [onSave, tempDate]);
 
-  const onDateChange = useCallback(
-    (_event: DateTimePickerEvent, selectedDate?: Date) => {
-      if (selectedDate) {
-        setTempDate(selectedDate);
-      }
-    },
-    [],
-  );
-
-  const handleSave = useCallback(() => {
-    onSave(tempDate);
-    bottomSheetRef.current?.close();
-  }, [onSave, tempDate]);
-
-  return (
-    <BottomSheet
-      ref={bottomSheetRef}
-      onDismiss={onClose}
-      // We can specify snapPoints if we want a fixed height,
-      // or let it auto-size with BottomSheetView
-    >
-      <View style={styles.content}>
-        <View style={styles.header}>
-          <Text variant="bodySemibold">{title}</Text>
+    return (
+      <BottomSheet ref={bottomSheetRef} onDismiss={onClose}>
+        <View style={styles.content}>
+          <View style={styles.header}>
+            <Text variant="bodySemibold">{title}</Text>
+          </View>
+          <View style={styles.body}>
+            <DateTimePicker
+              value={tempDate}
+              mode={mode}
+              display="spinner"
+              onChange={onDateChange}
+              maximumDate={maximumDate}
+              style={{ height: 200, width: '100%' }}
+            />
+          </View>
+          <View style={styles.footer}>
+            <Button
+              variant="ghost"
+              onPress={onClose}
+              style={{ flex: 1 }}
+              size="lg"
+            >
+              Cancel
+            </Button>
+            <Button onPress={handleSave} style={{ flex: 1 }} size="lg">
+              Set date
+            </Button>
+          </View>
         </View>
-        <View style={styles.body}>
-          <DateTimePicker
-            value={tempDate}
-            mode="date"
-            display="spinner"
-            onChange={onDateChange}
-            maximumDate={maximumDate}
-            style={{ height: 200, width: '100%' }}
-          />
-        </View>
-        <View style={styles.footer}>
-          <Button
-            variant="ghost"
-            onPress={onClose}
-            style={{ flex: 1 }}
-            size="lg"
-          >
-            Cancel
-          </Button>
-          <Button onPress={handleSave} style={{ flex: 1 }} size="lg">
-            Set date
-          </Button>
-        </View>
-      </View>
-    </BottomSheet>
-  );
-});
+      </BottomSheet>
+    );
+  },
+);
 
 DatePickerModal.displayName = 'DatePickerModal';
 

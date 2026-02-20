@@ -50,8 +50,11 @@ export function ChildProvider({ children }: { children: React.ReactNode }) {
   // Auto-select first child if none selected
   useEffect(() => {
     if (!isInitializing && !selectedChildId && childrenList.length > 0) {
-      setSelectedChildId(childrenList[0].id);
-      StorageService.savePreferences({ selectedChildId: childrenList[0].id });
+      const firstChild = childrenList[0];
+      if (firstChild) {
+        setSelectedChildId(firstChild.id);
+        StorageService.savePreferences({ selectedChildId: firstChild.id });
+      }
     }
   }, [isInitializing, selectedChildId, childrenList]);
 
@@ -76,7 +79,13 @@ export function ChildProvider({ children }: { children: React.ReactNode }) {
       setChildId,
       isLoading: isInitializing || isChildrenLoading,
     }),
-    [selectedChildId, selectedChild, setChildId, isInitializing, isChildrenLoading],
+    [
+      selectedChildId,
+      selectedChild,
+      setChildId,
+      isInitializing,
+      isChildrenLoading,
+    ],
   );
 
   return (

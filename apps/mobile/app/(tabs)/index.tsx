@@ -26,7 +26,7 @@ const QUICK_ACTIONS = [
   { id: 'diaper', label: 'Diaper', icon: 'plus.circle.fill', color: '#10B981' },
   { id: 'growth', label: 'Growth', icon: 'chart.bar.fill', color: '#F59E0B' },
   { id: 'meds', label: 'Meds', icon: 'pills.fill', color: '#EF4444' },
-  { id: 'tummy', label: 'Tummy', icon: 'figure.child', color: '#EC4899' },
+  { id: 'activity', label: 'Activity', icon: 'figure.child', color: '#EC4899' },
 ] as const;
 
 export default function HomeScreen() {
@@ -141,8 +141,7 @@ export default function HomeScreen() {
                       pressed && styles.pressed,
                     ]}
                     onPress={() => {
-                      // Placeholder for navigation to event entry forms
-                      console.log('Action:', action.id);
+                      router.push(`/events/${action.id}` as Href);
                     }}
                   >
                     <View

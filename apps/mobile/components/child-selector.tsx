@@ -1,11 +1,8 @@
+import type { Child } from '@sprout/core';
 import { BottomSheetFlatList } from '@gorhom/bottom-sheet';
 import { Image } from 'expo-image';
 import React, { useRef } from 'react';
-import {
-  Pressable,
-  StyleSheet,
-  View,
-} from 'react-native';
+import { Pressable, StyleSheet, View } from 'react-native';
 import { useSafeAreaInsets } from 'react-native-safe-area-context';
 
 import { useChildSelection } from '@/components/child-context';
@@ -68,7 +65,7 @@ export function ChildSelector() {
       <BottomSheet ref={bottomSheetRef}>
         <BottomSheetFlatList
           data={children}
-          keyExtractor={(item) => item.id}
+          keyExtractor={(item: Child) => item.id}
           contentContainerStyle={[
             styles.sheetContent,
             { paddingBottom: insets.bottom + 24 },
@@ -78,9 +75,9 @@ export function ChildSelector() {
               Switch child
             </Text>
           )}
-          renderItem={({ item }) => (
+          renderItem={({ item }: { item: Child }) => (
             <Item
-              variant="ghost"
+              variant="default"
               onPress={() => {
                 setChildId(item.id);
                 bottomSheetRef.current?.close();
@@ -116,11 +113,7 @@ export function ChildSelector() {
                 <ItemDescription>{item.birthdate}</ItemDescription>
               </ItemContent>
               {item.id === selectedChild?.id && (
-                <IconSymbol
-                  name="checkmark"
-                  size={20}
-                  color={colors.primary}
-                />
+                <IconSymbol name="checkmark" size={20} color={colors.primary} />
               )}
             </Item>
           )}

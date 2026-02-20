@@ -1,5 +1,5 @@
 -- CreateEnum
-CREATE TYPE "public"."EventType" AS ENUM ('nap', 'meal', 'diaper', 'note', 'message');
+CREATE TYPE "public"."EventType" AS ENUM ('activity', 'diaper', 'growth', 'meal', 'meds', 'message', 'nap', 'note');
 
 -- CreateEnum
 CREATE TYPE "public"."EventVisibility" AS ENUM ('all', 'parents_only', 'org_only');

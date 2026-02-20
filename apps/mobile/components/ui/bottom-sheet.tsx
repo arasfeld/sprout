@@ -45,6 +45,7 @@ export const BottomSheet = forwardRef<BottomSheetRef, Props>(
           appearsOnIndex={0}
           disappearsOnIndex={-1}
           opacity={0.5}
+          pressBehavior="close"
         />
       ),
       [],
@@ -56,7 +57,6 @@ export const BottomSheet = forwardRef<BottomSheetRef, Props>(
     return (
       <BottomSheetModal
         ref={bottomSheetModalRef}
-        index={0}
         snapPoints={snapPoints}
         enableDynamicSizing={enableDynamicSizing}
         backdropComponent={renderBackdrop}

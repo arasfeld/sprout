@@ -58,7 +58,15 @@ export interface ChildOrganization {
 }
 
 // events table
-export type EventType = 'nap' | 'meal' | 'diaper' | 'note' | 'message';
+export type EventType =
+  | 'nap'
+  | 'meal'
+  | 'diaper'
+  | 'note'
+  | 'message'
+  | 'growth'
+  | 'meds'
+  | 'activity';
 export type EventVisibility = 'all' | 'parents_only' | 'org_only';
 
 export interface Event {

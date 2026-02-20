@@ -13,6 +13,7 @@ import { useTheme } from '@/hooks/use-theme';
 
 export interface InputProps extends Omit<TextInputProps, 'style'> {
   containerStyle?: ViewStyle;
+  style?: TextStyle;
   /** When true, shows destructive border styling */
   invalid?: boolean;
 }
@@ -22,6 +23,7 @@ const INPUT_LINE_HEIGHT_MULTIPLIER = 1.35;
 
 export function Input({
   containerStyle,
+  style,
   invalid = false,
   secureTextEntry,
   editable = true,
@@ -82,6 +84,9 @@ export function Input({
         opacity: 0.5,
       });
     }
+    if (style) {
+      base.push(style);
+    }
     return base;
   }, [
     theme.mode,
@@ -94,6 +99,7 @@ export function Input({
     minHeight,
     paddingVertical,
     editable,
+    style,
   ]);
 
   return (

@@ -1,5 +1,11 @@
 import React, { createContext, useContext, useMemo } from 'react';
-import { StyleSheet, View, type ViewProps, type ViewStyle } from 'react-native';
+import {
+  Pressable,
+  StyleSheet,
+  View,
+  type ViewProps,
+  type ViewStyle,
+} from 'react-native';
 
 import type { Theme } from '@/hooks/use-theme';
 import { useTheme } from '@/hooks/use-theme';
@@ -70,6 +76,7 @@ export interface ItemProps extends ViewProps {
   size?: ItemSize;
   style?: ViewStyle;
   variant?: ItemVariant;
+  onPress?: () => void;
 }
 
 export function Item({
@@ -78,6 +85,7 @@ export function Item({
   size = 'md',
   style,
   variant = 'default',
+  onPress,
   ...props
 }: ItemProps) {
   const theme = useTheme();
@@ -105,11 +113,11 @@ export function Item({
     ...(style ? [style] : []),
   ];
 
-  if (
-    asChild &&
-    React.Children.count(children) === 1 &&
-    React.isValidElement(children)
-  ) {
+  const content = (
+    <ItemContext.Provider value={contextValue}>{children}</ItemContext.Provider>
+  );
+
+  if (asChild && React.isValidElement(children)) {
     const child = React.Children.only(
       children,
     ) as React.ReactElement<ViewProps>;
@@ -123,12 +131,22 @@ export function Item({
     );
   }
 
+  if (onPress) {
+    return (
+      <Pressable
+        onPress={onPress}
+        style={({ pressed }) => [itemStyle, pressed && { opacity: 0.7 }]}
+        {...props}
+      >
+        {content}
+      </Pressable>
+    );
+  }
+
   return (
-    <ItemContext.Provider value={contextValue}>
-      <View style={itemStyle} {...props}>
-        {children}
-      </View>
-    </ItemContext.Provider>
+    <View style={itemStyle} {...props}>
+      {content}
+    </View>
   );
 }
 

@@ -213,8 +213,10 @@ export function Button({
 
     switch (variant) {
       case 'default':
-      case 'secondary':
         base.push({ color: colors.primaryForeground });
+        break;
+      case 'secondary':
+        base.push({ color: colors.secondaryForeground });
         break;
       case 'outline':
       case 'ghost':
