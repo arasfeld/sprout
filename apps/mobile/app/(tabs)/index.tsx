@@ -1,54 +1,51 @@
-import type { Child } from '@sprout/core';
 import { type Href, useRouter } from 'expo-router';
-import React, { useCallback } from 'react';
+import React from 'react';
 import {
   ActivityIndicator,
-  FlatList,
-  Pressable,
   RefreshControl,
+  ScrollView,
   StyleSheet,
   View,
+  Pressable,
 } from 'react-native';
 import { SafeAreaView } from 'react-native-safe-area-context';
 
+import { useChildSelection } from '@/components/child-context';
+import { ChildSelector } from '@/components/child-selector';
 import { Button } from '@/components/ui/button';
-import {
-  Item,
-  ItemContent,
-  ItemDescription,
-  ItemMedia,
-  ItemTitle,
-} from '@/components/ui/item';
+import { Card } from '@/components/ui/card';
+import { IconSymbol } from '@/components/ui/icon-symbol';
 import { Text } from '@/components/ui/text';
 import { useChildren } from '@/hooks/queries/use-children';
 import { useRefreshOnFocus } from '@/hooks/use-refresh-on-focus';
 import { useTheme } from '@/hooks/use-theme';
 
+const QUICK_ACTIONS = [
+  { id: 'feed', label: 'Feed', icon: 'drop.fill', color: '#3B82F6' },
+  { id: 'sleep', label: 'Sleep', icon: 'moon.fill', color: '#6366F1' },
+  { id: 'diaper', label: 'Diaper', icon: 'plus.circle.fill', color: '#10B981' },
+  { id: 'growth', label: 'Growth', icon: 'chart.bar.fill', color: '#F59E0B' },
+  { id: 'meds', label: 'Meds', icon: 'pills.fill', color: '#EF4444' },
+  { id: 'tummy', label: 'Tummy', icon: 'figure.child', color: '#EC4899' },
+] as const;
+
 export default function HomeScreen() {
   const { colors } = useTheme();
   const router = useRouter();
-
-  useRefreshOnFocus();
-
+  const { selectedChild, isLoading: isSelectionLoading } = useChildSelection();
   const {
     data: children = [],
-    isLoading,
+    isLoading: isChildrenLoading,
     error,
     refetch,
     isRefetching,
   } = useChildren();
 
-  const handlePressChild = useCallback(
-    (child: Child) => {
-      router.push({
-        pathname: '/(tabs)/child/[id]',
-        params: { id: child.id },
-      } as Href);
-    },
-    [router],
-  );
+  useRefreshOnFocus();
 
-  if (isLoading) {
+  const isLoading = isSelectionLoading || isChildrenLoading;
+
+  if (isLoading && !isRefetching) {
     return (
       <SafeAreaView
         style={[styles.container, { backgroundColor: colors.background }]}
@@ -88,72 +85,129 @@ export default function HomeScreen() {
       edges={['top']}
     >
       <View style={styles.header}>
-        <View style={styles.headerRow}>
-          <Text variant="title">My children</Text>
-          <Button
-            variant="default"
-            size="sm"
-            onPress={() => router.push('/(tabs)/add-child' as Href)}
-          >
-            Add child
-          </Button>
-        </View>
+        <ChildSelector />
       </View>
-      {children.length === 0 ? (
-        <View style={[styles.empty, { borderColor: colors.border }]}>
-          <Text
-            variant="subtitle"
-            style={{ color: colors.mutedForeground, textAlign: 'center' }}
-          >
-            No children yet
-          </Text>
-          <Text
-            variant="muted"
-            style={[styles.emptyHint, { color: colors.mutedForeground }]}
-          >
-            Children you add or are linked to will appear here.
-          </Text>
-          <Button
-            variant="ghost"
-            size="sm"
-            onPress={() => refetch()}
-            style={{ marginTop: 16 }}
-          >
-            Refresh
-          </Button>
-        </View>
-      ) : (
-        <FlatList
-          data={children}
-          keyExtractor={(item) => item.id}
-          contentContainerStyle={styles.listContent}
-          refreshControl={
-            <RefreshControl
-              refreshing={isRefetching}
-              onRefresh={refetch}
-              tintColor={colors.primary}
+
+      <ScrollView
+        contentContainerStyle={styles.scrollContent}
+        refreshControl={
+          <RefreshControl
+            refreshing={isRefetching}
+            onRefresh={refetch}
+            tintColor={colors.primary}
+          />
+        }
+      >
+        {children.length === 0 ? (
+          <View style={[styles.empty, { borderColor: colors.border }]}>
+            <IconSymbol
+              name="figure.child"
+              size={48}
+              color={colors.mutedForeground}
             />
-          }
-          renderItem={({ item }) => (
-            <Item asChild variant="outline">
-              <Pressable
-                style={({ pressed }) => [pressed && styles.rowPressed]}
-                onPress={() => handlePressChild(item)}
+            <Text
+              variant="title"
+              style={{ marginTop: 16, textAlign: 'center' }}
+            >
+              Welcome to Sprout
+            </Text>
+            <Text
+              variant="muted"
+              style={[styles.emptyHint, { color: colors.mutedForeground }]}
+            >
+              Add your first child to start tracking their growth and
+              activities.
+            </Text>
+            <Button
+              variant="default"
+              onPress={() => router.push('/add-child' as Href)}
+              style={{ marginTop: 24, width: '100%' }}
+            >
+              Add child
+            </Button>
+          </View>
+        ) : (
+          <>
+            <View style={styles.section}>
+              <Text variant="subtitle" style={styles.sectionTitle}>
+                Quick Actions
+              </Text>
+              <View style={styles.grid}>
+                {QUICK_ACTIONS.map((action) => (
+                  <Pressable
+                    key={action.id}
+                    style={({ pressed }) => [
+                      styles.gridItem,
+                      pressed && styles.pressed,
+                    ]}
+                    onPress={() => {
+                      // Placeholder for navigation to event entry forms
+                      console.log('Action:', action.id);
+                    }}
+                  >
+                    <View
+                      style={[
+                        styles.iconContainer,
+                        { backgroundColor: action.color + '1A' },
+                      ]}
+                    >
+                      <IconSymbol
+                        name={action.icon as any}
+                        size={28}
+                        color={action.color}
+                      />
+                    </View>
+                    <Text variant="muted" style={styles.actionLabel}>
+                      {action.label}
+                    </Text>
+                  </Pressable>
+                ))}
+              </View>
+            </View>
+
+            <View style={styles.section}>
+              <View style={styles.sectionHeader}>
+                <Text variant="subtitle" style={styles.sectionTitle}>
+                  Timeline
+                </Text>
+                <Button variant="ghost" size="sm" onPress={() => {}}>
+                  View all
+                </Button>
+              </View>
+              <Card style={styles.timelinePlaceholder}>
+                <IconSymbol
+                  name="clock.fill"
+                  size={32}
+                  color={colors.mutedForeground}
+                />
+                <Text
+                  variant="muted"
+                  style={{ marginTop: 12, textAlign: 'center' }}
+                >
+                  No activities yet for {selectedChild?.name}.
+                </Text>
+                <Text
+                  variant="muted"
+                  style={{ fontSize: 13, textAlign: 'center' }}
+                >
+                  Use the quick actions above to log an event.
+                </Text>
+              </Card>
+            </View>
+
+            <View style={styles.footer}>
+              <Button
+                variant="outline"
+                size="sm"
+                onPress={() => router.push('/add-child' as Href)}
+                style={{ flex: 1 }}
               >
-                <ItemMedia>
-                  <View
-                    style={[styles.avatar, { backgroundColor: colors.muted }]}
-                  />
-                </ItemMedia>
-                <ItemContent>
-                  <ItemTitle>{item.name}</ItemTitle>
-                  <ItemDescription>{item.birthdate}</ItemDescription>
-                </ItemContent>
-              </Pressable>
-            </Item>
-          )}
-        />
-      )}
+                Add another child
+              </Button>
+            </View>
+          </>
+        )}
+      </ScrollView>
     </SafeAreaView>
   );
 }
@@ -168,41 +222,75 @@ const styles = StyleSheet.create({
     justifyContent: 'center',
   },
   header: {
-    paddingHorizontal: 16,
-    paddingVertical: 12,
+    // Clean header
   },
-  headerRow: {
+  scrollContent: {
+    padding: 16,
+    gap: 24,
+  },
+  section: {
+    gap: 12,
+  },
+  sectionHeader: {
     flexDirection: 'row',
     alignItems: 'center',
     justifyContent: 'space-between',
-    gap: 12,
   },
-  listContent: {
-    paddingHorizontal: 16,
-    paddingBottom: 24,
-    gap: 12,
+  sectionTitle: {
+    fontSize: 18,
+    fontWeight: '700',
   },
-  rowPressed: {
-    opacity: 0.8,
+  grid: {
+    flexDirection: 'row',
+    flexWrap: 'wrap',
+    marginHorizontal: -8,
   },
-  avatar: {
-    width: 44,
-    height: 44,
-    borderRadius: 22,
+  gridItem: {
+    width: '33.33%',
+    padding: 8,
+    alignItems: 'center',
+    gap: 8,
+  },
+  iconContainer: {
+    width: 64,
+    height: 64,
+    borderRadius: 16,
+    alignItems: 'center',
+    justifyContent: 'center',
+  },
+  actionLabel: {
+    fontSize: 13,
+    fontWeight: '500',
+    color: '#666',
+  },
+  pressed: {
+    opacity: 0.7,
+    transform: [{ scale: 0.96 }],
+  },
+  timelinePlaceholder: {
+    padding: 32,
+    alignItems: 'center',
+    justifyContent: 'center',
+    borderStyle: 'dashed',
+    borderWidth: 1,
   },
   empty: {
     flex: 1,
-    marginHorizontal: 16,
-    marginTop: 24,
-    borderWidth: 1,
-    borderStyle: 'dashed',
-    borderRadius: 12,
+    marginTop: 40,
+    padding: 32,
     alignItems: 'center',
     justifyContent: 'center',
-    padding: 32,
+    borderWidth: 1,
+    borderStyle: 'dashed',
+    borderRadius: 16,
   },
   emptyHint: {
     marginTop: 8,
     textAlign: 'center',
+  },
+  footer: {
+    flexDirection: 'row',
+    marginTop: 8,
+    marginBottom: 24,
   },
 });
