@@ -1,5 +1,5 @@
 import { Tabs } from 'expo-router';
-import React, { useMemo } from 'react';
+import { useMemo } from 'react';
 
 import { HapticTab } from '@/components/haptic-tab';
 import { IconSymbol } from '@/components/ui/icon-symbol';
@@ -9,11 +9,16 @@ export default function TabLayout() {
   const { colors } = useTheme();
   const screenOptions = useMemo(
     () => ({
-      tabBarActiveTintColor: colors.primary,
       headerShown: false,
+      tabBarActiveTintColor: colors.primary,
       tabBarButton: HapticTab,
+      tabBarInactiveTintColor: colors.mutedForeground,
+      tabBarStyle: {
+        backgroundColor: colors.card,
+        borderTopColor: colors.border,
+      },
     }),
-    [colors.primary],
+    [colors.border, colors.card, colors.primary, colors.mutedForeground],
   );
 
   return (
@@ -24,6 +29,15 @@ export default function TabLayout() {
           title: 'Home',
           tabBarIcon: ({ color }) => (
             <IconSymbol size={28} name="house.fill" color={color} />
+          ),
+        }}
+      />
+      <Tabs.Screen
+        name="timeline"
+        options={{
+          title: 'Timeline',
+          tabBarIcon: ({ color }) => (
+            <IconSymbol size={28} name="calendar" color={color} />
           ),
         }}
       />

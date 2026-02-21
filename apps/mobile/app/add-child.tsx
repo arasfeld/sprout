@@ -36,7 +36,7 @@ import { useCreateChild } from '@/hooks/mutations/use-create-child';
 import { useChildSelection } from '@/components/child-context';
 import { type Theme, useTheme } from '@/hooks/use-theme';
 import { uploadFile } from '@/services/upload';
-import { formatDate } from '@/utils/date';
+import { formatDate, formatDateHuman } from '@/utils/date';
 
 export default function AddChildScreen() {
   const router = useRouter();
@@ -272,11 +272,7 @@ export default function AddChildScreen() {
                   ]}
                 >
                   <Text style={{ color: colors.foreground }}>
-                    {birthdate.toLocaleDateString(undefined, {
-                      year: 'numeric',
-                      month: 'long',
-                      day: 'numeric',
-                    })}
+                    {formatDateHuman(birthdate)}
                   </Text>
                   <IconSymbol
                     name="chevron.right"

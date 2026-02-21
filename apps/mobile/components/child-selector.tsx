@@ -18,6 +18,7 @@ import {
 import { Text } from '@/components/ui/text';
 import { useChildren } from '@/hooks/queries/use-children';
 import { useTheme } from '@/hooks/use-theme';
+import { formatDateLongHuman } from '@/utils/date';
 
 export function ChildSelector() {
   const { colors } = useTheme();
@@ -34,11 +35,15 @@ export function ChildSelector() {
         onPress={() => bottomSheetRef.current?.open()}
         style={({ pressed }) => [
           styles.selector,
-          { backgroundColor: colors.muted },
+          {
+            backgroundColor: colors.card,
+            borderColor: colors.border,
+            borderWidth: 1,
+          },
           pressed && styles.pressed,
         ]}
       >
-        <View style={[styles.avatar, { backgroundColor: colors.background }]}>
+        <View style={[styles.avatar, { backgroundColor: colors.muted }]}>
           {selectedChild?.avatar_url ? (
             <Image
               source={{ uri: selectedChild.avatar_url }}
@@ -52,12 +57,12 @@ export function ChildSelector() {
             />
           )}
         </View>
-        <Text variant="subtitle" style={styles.name}>
-          {selectedChild?.name ?? 'Select child'}
+        <Text variant="bodySemibold" style={styles.name}>
+          {selectedChild?.name}
         </Text>
         <IconSymbol
           name="chevron.down"
-          size={14}
+          size={12}
           color={colors.mutedForeground}
         />
       </Pressable>
@@ -71,9 +76,14 @@ export function ChildSelector() {
             { paddingBottom: insets.bottom + 24 },
           ]}
           ListHeaderComponent={() => (
-            <Text variant="title" style={styles.sheetTitle}>
-              Switch child
-            </Text>
+            <View style={styles.sheetHeader}>
+              <Text variant="title" style={styles.sheetTitle}>
+                Switch Child
+              </Text>
+              <Text variant="muted" style={styles.sheetSubtitle}>
+                Select a child to view their timeline and activities.
+              </Text>
+            </View>
           )}
           renderItem={({ item }: { item: Child }) => (
             <Item
@@ -82,6 +92,13 @@ export function ChildSelector() {
                 setChildId(item.id);
                 bottomSheetRef.current?.close();
               }}
+              style={StyleSheet.flatten([
+                styles.childItem,
+                item.id === selectedChild?.id && {
+                  backgroundColor: colors.primary + '10',
+                  borderColor: colors.primary + '40',
+                },
+              ])}
             >
               <ItemMedia>
                 <View
@@ -110,14 +127,16 @@ export function ChildSelector() {
               </ItemMedia>
               <ItemContent>
                 <ItemTitle>{item.name}</ItemTitle>
-                <ItemDescription>{item.birthdate}</ItemDescription>
+                <ItemDescription>
+                  {formatDateLongHuman(new Date(item.birthdate))}
+                </ItemDescription>
               </ItemContent>
               {item.id === selectedChild?.id && (
                 <IconSymbol name="checkmark" size={20} color={colors.primary} />
               )}
             </Item>
           )}
-          ItemSeparatorComponent={() => <View style={{ height: 8 }} />}
+          ItemSeparatorComponent={() => <View style={{ height: 12 }} />}
         />
       </BottomSheet>
     </View>
@@ -126,35 +145,34 @@ export function ChildSelector() {
 
 const styles = StyleSheet.create({
   container: {
-    paddingHorizontal: 16,
-    paddingVertical: 12,
-    alignItems: 'center',
+    // No longer centered, will be positioned by parent
   },
   selector: {
     flexDirection: 'row',
     alignItems: 'center',
-    paddingHorizontal: 8,
-    paddingVertical: 6,
-    paddingRight: 12,
+    padding: 4,
+    paddingRight: 10,
     borderRadius: 24,
-    gap: 10,
+    gap: 8,
   },
   pressed: {
     opacity: 0.7,
     transform: [{ scale: 0.98 }],
   },
   avatar: {
-    width: 32,
-    height: 32,
-    borderRadius: 16,
+    width: 36,
+    height: 36,
+    borderRadius: 18,
     overflow: 'hidden',
     alignItems: 'center',
     justifyContent: 'center',
+    borderWidth: 2,
+    borderColor: 'transparent',
   },
   avatarSmall: {
-    width: 40,
-    height: 40,
-    borderRadius: 20,
+    width: 48,
+    height: 48,
+    borderRadius: 24,
     overflow: 'hidden',
     alignItems: 'center',
     justifyContent: 'center',
@@ -164,16 +182,29 @@ const styles = StyleSheet.create({
     height: '100%',
   },
   name: {
-    fontSize: 16,
+    fontSize: 15,
     fontWeight: '700',
-    letterSpacing: -0.3,
+    marginRight: 4,
+  },
+  sheetHeader: {
+    marginBottom: 24,
   },
   sheetContent: {
     paddingHorizontal: 16,
   },
   sheetTitle: {
-    marginBottom: 16,
-    fontSize: 20,
-    fontWeight: '700',
+    fontSize: 22,
+    fontWeight: '800',
+    letterSpacing: -0.5,
+  },
+  sheetSubtitle: {
+    fontSize: 15,
+    marginTop: 4,
+  },
+  childItem: {
+    borderRadius: 16,
+    borderWidth: 1,
+    borderColor: 'transparent',
+    padding: 4,
   },
 });
