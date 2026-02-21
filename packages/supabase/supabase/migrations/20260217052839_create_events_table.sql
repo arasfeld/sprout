@@ -14,9 +14,14 @@ CREATE TABLE "public"."events" (
     "payload" JSONB NOT NULL,
     "visibility" "public"."EventVisibility" NOT NULL,
     "created_at" TIMESTAMPTZ NOT NULL DEFAULT CURRENT_TIMESTAMP,
+    "updated_at" TIMESTAMPTZ NOT NULL DEFAULT CURRENT_TIMESTAMP,
 
     CONSTRAINT "events_pkey" PRIMARY KEY ("id")
 );
+
+CREATE TRIGGER events_updated_at
+    BEFORE UPDATE ON "public"."events"
+    FOR EACH ROW EXECUTE FUNCTION public.update_updated_at();
 
 -- AddForeignKey
 ALTER TABLE "public"."events" ADD CONSTRAINT "events_child_id_fkey" FOREIGN KEY ("child_id") REFERENCES "public"."children"("id") ON DELETE RESTRICT ON UPDATE CASCADE;

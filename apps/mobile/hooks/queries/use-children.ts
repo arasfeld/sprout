@@ -1,25 +1,29 @@
 import type { Child } from '@sprout/core';
-import { useQuery } from '@tanstack/react-query';
+import { isNull } from 'drizzle-orm';
+import { useLiveQuery } from 'drizzle-orm/expo-sqlite';
 
-import { queryKeys } from '@/constants/query-keys';
-import { supabase } from '@/services/supabase';
+import { db } from '@/services/db/client';
+import { children as childrenTable } from '@/services/db/schema';
+
+function rowToChild(row: typeof childrenTable.$inferSelect): Child {
+  return {
+    id: row.id,
+    name: row.name,
+    birthdate: row.birthdate,
+    sex: row.sex ?? null,
+    avatar_url: row.avatarUrl ?? null,
+    created_by: row.createdBy ?? '',
+  };
+}
 
 export function useChildren() {
-  return useQuery({
-    queryKey: queryKeys.children.list(),
-    queryFn: async () => {
-      // RLS on `child_memberships` table automatically filters to the current user.
-      const { data: memberships, error: fetchError } = await supabase
-        .from('child_memberships')
-        .select('children(*)');
+  const { data, error } = useLiveQuery(
+    db.select().from(childrenTable).where(isNull(childrenTable.deletedAt)),
+  );
 
-      if (fetchError) {
-        throw new Error(fetchError.message);
-      }
-
-      return (memberships ?? [])
-        .map((membership) => membership.children)
-        .filter((child): child is Child => child !== null);
-    },
-  });
+  return {
+    data: (data ?? []).map(rowToChild),
+    isLoading: data === undefined,
+    error,
+  };
 }

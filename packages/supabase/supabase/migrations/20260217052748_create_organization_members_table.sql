@@ -7,9 +7,15 @@ CREATE TABLE "public"."organization_members" (
     "organization_id" UUID NOT NULL,
     "user_id" UUID NOT NULL,
     "role" "public"."OrganizationMemberRole" NOT NULL,
+    "created_at" TIMESTAMPTZ NOT NULL DEFAULT CURRENT_TIMESTAMP,
+    "updated_at" TIMESTAMPTZ NOT NULL DEFAULT CURRENT_TIMESTAMP,
 
     CONSTRAINT "organization_members_pkey" PRIMARY KEY ("id")
 );
+
+CREATE TRIGGER organization_members_updated_at
+    BEFORE UPDATE ON "public"."organization_members"
+    FOR EACH ROW EXECUTE FUNCTION public.update_updated_at();
 
 -- AddForeignKey
 ALTER TABLE "public"."organization_members" ADD CONSTRAINT "organization_members_organization_id_fkey" FOREIGN KEY ("organization_id") REFERENCES "public"."organizations"("id") ON DELETE RESTRICT ON UPDATE CASCADE;

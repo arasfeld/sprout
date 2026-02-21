@@ -1,20 +1,21 @@
 import type { Event, EventType, EventVisibility } from '@sprout/core';
-import { useMutation, useQueryClient } from '@tanstack/react-query';
+import { useMutation } from '@tanstack/react-query';
+import * as Crypto from 'expo-crypto';
 
 import { useAuth } from '@/components/auth-context';
-import { queryKeys } from '@/constants/query-keys';
-import { supabase } from '@/services/supabase';
+import { db } from '@/services/db/client';
+import { events as eventsTable } from '@/services/db/schema';
+import { syncEngine } from '@/services/sync/engine';
 
 interface CreateEventParams {
   child_id: string;
   type: EventType;
-  payload: Record<string, any>;
+  payload: Record<string, unknown>;
   visibility?: EventVisibility;
   organization_id?: string | null;
 }
 
 export function useCreateEvent() {
-  const queryClient = useQueryClient();
   const { user } = useAuth();
 
   return useMutation<Event, Error, CreateEventParams>({
@@ -24,31 +25,36 @@ export function useCreateEvent() {
       payload,
       visibility = 'all',
       organization_id = null,
-    }: CreateEventParams) => {
-      if (!user) throw new Error('Not authenticated');
+    }) => {
+      const id = Crypto.randomUUID();
+      const now = new Date().toISOString();
 
-      const { data, error } = await supabase
-        .from('events')
-        .insert({
-          child_id,
-          type: type as any,
-          payload,
-          visibility,
-          organization_id,
-          created_by: user.id,
-        })
-        .select()
-        .single();
+      await db.insert(eventsTable).values({
+        id,
+        childId: child_id,
+        type,
+        payload: JSON.stringify(payload),
+        visibility,
+        organizationId: organization_id,
+        createdBy: user?.id ?? null,
+        syncStatus: 'pending',
+        createdAt: now,
+        updatedAt: now,
+      });
 
-      if (error) throw new Error(error.message);
-      return data as Event;
-    },
-    onSettled: (data) => {
-      if (data) {
-        queryClient.invalidateQueries({
-          queryKey: queryKeys.events.list(data.child_id),
-        });
-      }
+      const event: Event = {
+        id,
+        child_id,
+        created_by: user?.id ?? '',
+        organization_id,
+        type,
+        payload,
+        visibility,
+        created_at: now,
+      };
+
+      syncEngine.nudge();
+      return event;
     },
   });
 }

@@ -9,9 +9,16 @@ CREATE TABLE "public"."child_memberships" (
     "role" "public"."ChildMembershipRole" NOT NULL,
     "organization_id" UUID,
     "permissions" JSONB,
+    "created_at" TIMESTAMPTZ NOT NULL DEFAULT CURRENT_TIMESTAMP,
+    "updated_at" TIMESTAMPTZ NOT NULL DEFAULT CURRENT_TIMESTAMP,
 
-    CONSTRAINT "child_memberships_pkey" PRIMARY KEY ("id")
+    CONSTRAINT "child_memberships_pkey" PRIMARY KEY ("id"),
+    CONSTRAINT "child_memberships_child_user_unique" UNIQUE ("child_id", "user_id")
 );
+
+CREATE TRIGGER child_memberships_updated_at
+    BEFORE UPDATE ON "public"."child_memberships"
+    FOR EACH ROW EXECUTE FUNCTION public.update_updated_at();
 
 -- AddForeignKey
 ALTER TABLE "public"."child_memberships" ADD CONSTRAINT "child_memberships_child_id_fkey" FOREIGN KEY ("child_id") REFERENCES "public"."children"("id") ON DELETE RESTRICT ON UPDATE CASCADE;

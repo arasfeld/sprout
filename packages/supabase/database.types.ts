@@ -12,26 +12,32 @@ export type Database = {
       child_memberships: {
         Row: {
           child_id: string;
+          created_at: string;
           id: string;
           organization_id: string | null;
           permissions: Json | null;
           role: Database['public']['Enums']['ChildMembershipRole'];
+          updated_at: string;
           user_id: string;
         };
         Insert: {
           child_id: string;
+          created_at?: string;
           id?: string;
           organization_id?: string | null;
           permissions?: Json | null;
           role: Database['public']['Enums']['ChildMembershipRole'];
+          updated_at?: string;
           user_id: string;
         };
         Update: {
           child_id?: string;
+          created_at?: string;
           id?: string;
           organization_id?: string | null;
           permissions?: Json | null;
           role?: Database['public']['Enums']['ChildMembershipRole'];
+          updated_at?: string;
           user_id?: string;
         };
         Relationships: [
@@ -61,18 +67,24 @@ export type Database = {
       child_organizations: {
         Row: {
           child_id: string;
+          created_at: string;
           id: string;
           organization_id: string;
+          updated_at: string;
         };
         Insert: {
           child_id: string;
+          created_at?: string;
           id?: string;
           organization_id: string;
+          updated_at?: string;
         };
         Update: {
           child_id?: string;
+          created_at?: string;
           id?: string;
           organization_id?: string;
+          updated_at?: string;
         };
         Relationships: [
           {
@@ -95,26 +107,32 @@ export type Database = {
         Row: {
           avatar_url: string | null;
           birthdate: string;
+          created_at: string;
           created_by: string;
           id: string;
           name: string;
           sex: Database['public']['Enums']['Sex'] | null;
+          updated_at: string;
         };
         Insert: {
           avatar_url?: string | null;
           birthdate: string;
+          created_at?: string;
           created_by: string;
           id?: string;
           name: string;
           sex?: Database['public']['Enums']['Sex'] | null;
+          updated_at?: string;
         };
         Update: {
           avatar_url?: string | null;
           birthdate?: string;
+          created_at?: string;
           created_by?: string;
           id?: string;
           name?: string;
           sex?: Database['public']['Enums']['Sex'] | null;
+          updated_at?: string;
         };
         Relationships: [
           {
@@ -135,6 +153,7 @@ export type Database = {
           organization_id: string | null;
           payload: Json;
           type: Database['public']['Enums']['EventType'];
+          updated_at: string;
           visibility: Database['public']['Enums']['EventVisibility'];
         };
         Insert: {
@@ -145,6 +164,7 @@ export type Database = {
           organization_id?: string | null;
           payload: Json;
           type: Database['public']['Enums']['EventType'];
+          updated_at?: string;
           visibility: Database['public']['Enums']['EventVisibility'];
         };
         Update: {
@@ -155,6 +175,7 @@ export type Database = {
           organization_id?: string | null;
           payload?: Json;
           type?: Database['public']['Enums']['EventType'];
+          updated_at?: string;
           visibility?: Database['public']['Enums']['EventVisibility'];
         };
         Relationships: [
@@ -183,21 +204,27 @@ export type Database = {
       };
       organization_members: {
         Row: {
+          created_at: string;
           id: string;
           organization_id: string;
           role: Database['public']['Enums']['OrganizationMemberRole'];
+          updated_at: string;
           user_id: string;
         };
         Insert: {
+          created_at?: string;
           id?: string;
           organization_id: string;
           role: Database['public']['Enums']['OrganizationMemberRole'];
+          updated_at?: string;
           user_id: string;
         };
         Update: {
+          created_at?: string;
           id?: string;
           organization_id?: string;
           role?: Database['public']['Enums']['OrganizationMemberRole'];
+          updated_at?: string;
           user_id?: string;
         };
         Relationships: [
@@ -219,34 +246,46 @@ export type Database = {
       };
       organizations: {
         Row: {
+          created_at: string;
           id: string;
           name: string;
           type: Database['public']['Enums']['OrganizationType'];
+          updated_at: string;
         };
         Insert: {
+          created_at?: string;
           id?: string;
           name: string;
           type: Database['public']['Enums']['OrganizationType'];
+          updated_at?: string;
         };
         Update: {
+          created_at?: string;
           id?: string;
           name?: string;
           type?: Database['public']['Enums']['OrganizationType'];
+          updated_at?: string;
         };
         Relationships: [];
       };
       users: {
         Row: {
+          created_at: string;
           email: string;
           id: string;
+          updated_at: string;
         };
         Insert: {
+          created_at?: string;
           email: string;
           id: string;
+          updated_at?: string;
         };
         Update: {
+          created_at?: string;
           email?: string;
           id?: string;
+          updated_at?: string;
         };
         Relationships: [];
       };
@@ -265,10 +304,39 @@ export type Database = {
         Returns: {
           avatar_url: string | null;
           birthdate: string;
+          created_at: string;
           created_by: string;
           id: string;
           name: string;
           sex: Database['public']['Enums']['Sex'] | null;
+          updated_at: string;
+        };
+        SetofOptions: {
+          from: '*';
+          to: 'children';
+          isOneToOne: true;
+          isSetofReturn: false;
+        };
+      };
+      sync_child: {
+        Args: {
+          p_avatar_url?: string;
+          p_birthdate: string;
+          p_created_at?: string;
+          p_id: string;
+          p_name: string;
+          p_sex?: Database['public']['Enums']['Sex'];
+          p_updated_at?: string;
+        };
+        Returns: {
+          avatar_url: string | null;
+          birthdate: string;
+          created_at: string;
+          created_by: string;
+          id: string;
+          name: string;
+          sex: Database['public']['Enums']['Sex'] | null;
+          updated_at: string;
         };
         SetofOptions: {
           from: '*';

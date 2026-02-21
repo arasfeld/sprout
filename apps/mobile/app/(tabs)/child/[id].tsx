@@ -15,7 +15,7 @@ export default function ChildDetailScreen() {
   const { colors } = useTheme();
   const router = useRouter();
 
-  const { data: child, isLoading, error, refetch } = useChild(id ?? '');
+  const { data: child, isLoading, error } = useChild(id ?? '');
 
   const handleBack = useCallback(() => {
     router.back();
@@ -47,11 +47,8 @@ export default function ChildDetailScreen() {
           >
             {error instanceof Error ? error.message : 'Child not found'}
           </Text>
-          <Button
-            onPress={() => (error ? refetch() : handleBack())}
-            style={styles.backButton}
-          >
-            {error ? 'Try again' : 'Back'}
+          <Button onPress={handleBack} style={styles.backButton}>
+            Back
           </Button>
         </View>
       </SafeAreaView>

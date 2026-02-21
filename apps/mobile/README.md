@@ -6,42 +6,120 @@ This is the primary client for the Sprout childcare tracking system. Parents, ca
 
 ## Current Status
 
-The UI is under active development. The app uses **Supabase Auth** (email/password sign up and sign in) and is session-aware; unauthenticated users see the sign-in screen first. Backend integration is being introduced incrementally — the home tab can be wired to real data (e.g. children for the current user) as a next step. Use mock/local data for features not yet connected.
+The app is **offline-first**: all data lives in a local SQLite database and syncs to Supabase in the background. The app loads without requiring sign-in; authentication is optional and activates sync when present. UI is under active development — new screens and flows are being added incrementally.
 
 ## Folder Structure
 
 ```
 apps/mobile/
   app/                  → Expo Router file-based routing
-    _layout.tsx         → Root layout (AuthProvider, Stack)
-    index.tsx           → Session gate (redirects to sign-in or tabs)
+    _layout.tsx         → Root layout (providers, stack)
     (auth)/             → Auth group (sign-in, sign-up)
       _layout.tsx
       sign-in.tsx
       sign-up.tsx
     (tabs)/             → Tab group
       _layout.tsx       → Tab navigator layout
-      index.tsx         → Home tab (My children list)
-      child/[id].tsx    → Child detail (timeline placeholder)
+      index.tsx         → Home tab (children list)
+      child/[id].tsx    → Child detail (event timeline)
       settings.tsx      → Settings tab
   components/
     ui/                 → Reusable UI primitives (Button, Text, Icon, etc.)
+    auth-context.tsx    → Auth state + sign-in/out; activates sync on sign-in
+    sync-context.tsx    → Sync engine access via React context
+    providers.tsx       → Root provider composition
     theme-context.tsx   → React Context theme provider
-    ...                 → App-level components
   constants/
     theme.ts            → Design tokens (colors, typography, spacing, radius)
   hooks/
     use-theme.ts        → Theme access hook
     use-theme.web.ts    → Web-specific theme hook
     use-color-scheme.ts → System color scheme detection
-    use-color-scheme.web.ts → Web-specific color scheme detection
+    mutations/          → useMutation hooks (use-create-child, use-create-event, etc.)
+    queries/            → useLiveQuery hooks (use-children, use-child, use-events, etc.)
   services/
-    storage.ts          → AsyncStorage wrapper
-  types/
-    preferences.ts      → Domain type definitions
-  utils/
-    color.ts            → Color utility functions
+    db/
+      schema.ts         → Drizzle table definitions (children, events, syncMeta)
+      client.ts         → SQLite singleton, initialized at startup
+    sync/
+      engine.ts         → SyncEngine singleton — call nudge() after mutations
+      push.ts           → Pushes pending local records to Supabase
+      pull.ts           → Fetches Supabase records, resolves conflicts, writes to SQLite
+      resolver.ts       → Re-exports resolveChild() from @sprout/core
+    supabase.ts         → Configured Supabase client singleton
+  types/                → Domain type definitions
+  utils/                → Utility functions
 ```
+
+## Offline-First Data Architecture
+
+All reads and writes flow through a local SQLite database. Supabase is the sync target, not the read source.
+
+### Data flow
+
+```
+UI → useLiveQuery (Drizzle) → SQLite ← Sync Engine ↔ Supabase
+```
+
+### Reading data
+
+Use `useLiveQuery` from `drizzle-orm/expo-sqlite`. Queries are reactive — they re-run automatically when the underlying table changes.
+
+```tsx
+import { useLiveQuery } from 'drizzle-orm/expo-sqlite';
+import { db } from '@/services/db/client';
+import { children } from '@/services/db/schema';
+
+function ChildrenList() {
+  const { data } = useLiveQuery(db.select().from(children));
+  // data is undefined on first render, then an array
+}
+```
+
+Pre-built query hooks live in `hooks/queries/`:
+
+```tsx
+const { data: child } = useChild(id);
+const { data: events } = useEvents(childId);
+```
+
+### Writing data
+
+Use `useMutation` (TanStack Query) for loading/error state. Write to SQLite with `sync_status: 'pending'`, then call `syncEngine.nudge()`.
+
+```tsx
+const mutation = useMutation({
+  mutationFn: async (input) => {
+    await db.insert(children).values({
+      id: crypto.randomUUID(),
+      ...input,
+      syncStatus: 'pending',
+    });
+    syncEngine.nudge(); // triggers background sync
+  },
+});
+```
+
+Pre-built mutation hooks live in `hooks/mutations/`.
+
+### Sync
+
+The `SyncEngine` (singleton in `services/sync/engine.ts`) coordinates push and pull. It activates on sign-in and can be nudged after any local write.
+
+- **Push** — uploads records with `sync_status = 'pending'` to Supabase
+- **Pull** — fetches remote records updated since `last_sync_at`, resolves conflicts (last-write-wins on `updated_at`), writes to SQLite
+- **UUIDs** — generated locally with `crypto.randomUUID()`, same ID used in Supabase
+
+### Local schema fields
+
+Every SQLite table includes:
+
+| Field         | Type                                          | Purpose                  |
+| ------------- | --------------------------------------------- | ------------------------ |
+| `syncStatus`  | `'local' \| 'pending' \| 'synced' \| 'error'` | Sync lifecycle state     |
+| `createdAt`   | `string` (ISO)                                | Record creation time     |
+| `updatedAt`   | `string` (ISO)                                | Last local modification  |
+| `deletedAt`   | `string \| null` (ISO)                        | Soft delete timestamp    |
 
 ## Design System
 
@@ -117,10 +195,6 @@ This app uses [Expo Router](https://docs.expo.dev/router/introduction/) for file
 - Routes are defined by the file structure inside `app/`
 - Group routes use parentheses: `(tabs)/` groups tab screens without adding a URL segment
 - Each route group has a `_layout.tsx` defining its navigator
-
-## Data
-
-The app talks directly to **Supabase** — no custom API server. **Supabase Auth** handles sign up and sign in; session is persisted via AsyncStorage. Domain types are defined in `types/`. User preferences are also persisted locally via AsyncStorage (`services/storage.ts`). The home tab can be wired to load children (and other data) for the current user; Supabase Realtime will power live timeline updates.
 
 ## Development
 

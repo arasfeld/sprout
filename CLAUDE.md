@@ -10,13 +10,13 @@ The same child timeline is shared between single parents, co-parents, daycare st
 
 ## Current Development Phase
 
-The mobile app UI is under active development. We are designing screens, building feature flows, creating forms, and iterating on UX. The data model is defined (see [docs/architecture.md](docs/architecture.md)) but backend integration is being introduced incrementally.
+The mobile app UI is under active development. We are designing screens, building feature flows, creating forms, and iterating on UX. The offline-first local database is in place; Supabase sync runs automatically on sign-in. New features read from SQLite (via `useLiveQuery`) and write locally first (via `useMutation`).
 
 **Do:**
 
-- Use mock/local data for features that are not yet connected
-- Keep UI state local where possible (useState, useReducer)
-- Model domain types in the `types/` directory or in `packages/types`
+- Query data with `useLiveQuery(db.select().from(table).where(...))` — reactive, no manual invalidation
+- Write with `useMutation` (TanStack Query) and call `syncEngine.nudge()` after successful mutations
+- Generate UUIDs locally with `crypto.randomUUID()` — same ID flows through SQLite and Supabase
 - Follow the shared timeline model — never separate "home" and "daycare" data
 - Ask before making architectural changes
 - Keep commits small and focused
@@ -28,6 +28,7 @@ The mobile app UI is under active development. We are designing screens, buildin
 - Over-engineer messaging — messages are events with `type = 'message'`
 - Add dependencies without explicit approval
 - Duplicate data across contexts (home vs daycare)
+- Query Supabase directly from UI components — always read from SQLite
 
 ## Data Model
 
@@ -49,6 +50,51 @@ The mobile app UI is under active development. We are designing screens, buildin
 4. Events have a `visibility` field (`all`, `parents_only`, `org_only`) for access control.
 5. Messaging is events with `type = 'message'`.
 
+## Local-First Data Architecture
+
+The mobile app uses an offline-first architecture. All reads and writes go through a local SQLite database; Supabase is the remote sync target.
+
+**Data flow:** UI → `useLiveQuery` (drizzle) → SQLite → Sync Engine → Supabase
+
+### Local database (`services/db/`)
+
+- `schema.ts` — Drizzle table definitions mirroring the Supabase schema, plus sync metadata fields (`sync_status`, `created_at`, `updated_at`, `deleted_at`)
+- `client.ts` — SQLite singleton, initialized via `execSync` at startup
+
+All local tables carry:
+
+```ts
+sync_status: 'local' | 'pending' | 'synced' | 'error'
+created_at, updated_at, deleted_at  // soft delete
+```
+
+### Sync engine (`services/sync/`)
+
+- `engine.ts` — Singleton `SyncEngine`. Call `syncEngine.nudge()` after mutations to trigger a push/pull cycle.
+- `push.ts` — Pushes records with `sync_status = 'pending'` to Supabase.
+- `pull.ts` — Fetches Supabase records updated since `last_sync_at`, resolves conflicts, writes to SQLite.
+- `resolver.ts` — Re-exports `resolveChild()` from `@sprout/core`. Last-write-wins on `updated_at`.
+
+Sync is triggered automatically on sign-in via `syncEngine.setAuthenticated(true)` in `auth-context.tsx`.
+
+### Query hook pattern
+
+```ts
+const { data } = useLiveQuery(db.select().from(children).where(eq(children.id, id)));
+// data is undefined on first render, then the result array
+```
+
+### Mutation pattern
+
+```ts
+const mutation = useMutation({
+  mutationFn: async (input) => {
+    await db.insert(children).values({ ...input, syncStatus: 'pending' });
+    syncEngine.nudge();
+  },
+});
+```
+
 ## Supabase Architecture
 
 Supabase is the backend. No custom API server.
@@ -56,7 +102,7 @@ Supabase is the backend. No custom API server.
 - **Auth:** Supabase Auth for user registration, login, and session management
 - **Database:** Postgres with Row Level Security (RLS) enforcing all access rules
 - **Storage:** Supabase Storage for photo uploads
-- **Realtime:** Supabase Realtime for live timeline updates
+- **Realtime:** Supabase Realtime for live timeline updates (future)
 - **Edge Functions:** For logic that cannot run client-side (future)
 
 Clients (Expo mobile app, future Next.js web app) talk directly to Supabase. RLS policies are the authorization layer.
@@ -80,6 +126,16 @@ This is a pnpm monorepo using Turborepo. All top-level commands run through turb
 - `pnpm --filter @sprout/mobile lint` — lint mobile app only
 - `pnpm --filter @sprout/mobile check-types` — type-check mobile app only
 
+### Package build note
+
+`pnpm check-types` does **not** auto-build workspace dependencies. After changing `packages/core` or `packages/supabase`, rebuild before type-checking:
+
+```bash
+pnpm --filter @sprout/core build
+pnpm --filter @sprout/supabase build
+pnpm check-types
+```
+
 ## Repository Structure
 
 ```
@@ -91,20 +147,22 @@ apps/
 packages/
   config-eslint/       → Shared ESLint configurations
   config-typescript/   → Shared TypeScript configurations
-  core/                → Shared TypeScript types, constants, functions, etc.
-  supabase/            → Supabase client, migrations, local dev (active)
+  core/                → Shared domain types + sync resolver (resolveChild)
+  supabase/            → Supabase client, migrations, pull helpers (pullChildren, pullEvents)
 ```
 
-Currently active: `apps/mobile`, config packages, and `packages/supabase`. The mobile app has Supabase Auth (sign up / sign in) and is session-aware.
+Currently active: `apps/mobile`, config packages, `packages/core`, and `packages/supabase`.
 
 **Mobile app structure (`apps/mobile/`):**
 
 - `app/` — Expo Router file-based routing with typed routes
 - `components/ui/` — Reusable UI primitives styled with theme tokens
-- `components/` — App-level components (theme context, navigation helpers)
+- `components/` — App-level components (theme context, auth context, sync context)
 - `constants/theme.ts` — Design tokens (colors, typography, spacing, radius)
-- `hooks/` — Custom hooks (useTheme, useColorScheme) with platform-specific variants
-- `services/` — Business logic (e.g., storage service)
+- `hooks/` — Custom hooks (useTheme, useColorScheme, query hooks, mutation hooks)
+- `services/db/` — SQLite client and Drizzle schema
+- `services/sync/` — Sync engine, push, pull, resolver
+- `services/supabase.ts` — Configured Supabase client singleton
 - `types/` — Domain type definitions
 - `utils/` — Utility functions
 
@@ -142,8 +200,9 @@ Components **must:**
 
 - Keep UI state local where possible (useState, useReducer)
 - Do not introduce Redux, RTK Query, or similar libraries
-- TanStack Query may be used for client-side caching alongside Supabase
-- Supabase handles data fetching and realtime — TanStack Query is optional caching, not the primary data layer
+- **Reads:** Use `useLiveQuery` from `drizzle-orm/expo-sqlite` — reactive subscriptions to SQLite
+- **Writes:** Use `useMutation` from TanStack Query for loading/error state; write to SQLite directly
+- Supabase is the sync target, not the read source — never query Supabase from UI hooks
 
 ## Code Style
 

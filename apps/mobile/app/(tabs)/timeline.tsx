@@ -1,28 +1,28 @@
-import React, { useState, useMemo } from 'react';
+import { parseISO, format, isSameDay } from 'date-fns';
+import React, { useMemo, useState } from 'react';
 import {
   ActivityIndicator,
-  StyleSheet,
-  View,
   FlatList,
   Pressable,
+  StyleSheet,
+  View,
 } from 'react-native';
 import { SafeAreaView } from 'react-native-safe-area-context';
+
+import { useChildSelection } from '@/components/child-context';
+import { ChildSelector } from '@/components/child-selector';
 import {
   CalendarProvider,
   Timeline,
   WeekCalendar,
 } from '@/components/ui/calendar';
-import { format, isSameDay, parseISO } from 'date-fns';
-
-import { useChildSelection } from '@/components/child-context';
-import { ChildSelector } from '@/components/child-selector';
-import { SegmentedControl } from '@/components/ui/segmented-control';
 import { Card } from '@/components/ui/card';
-import { Text } from '@/components/ui/text';
 import { IconSymbol } from '@/components/ui/icon-symbol';
+import { SegmentedControl } from '@/components/ui/segmented-control';
+import { Text } from '@/components/ui/text';
 import { useEvents } from '@/hooks/queries/use-events';
 import { useTheme } from '@/hooks/use-theme';
-import { Event } from '@sprout/core';
+import type { Event } from '@sprout/core';
 
 type ViewMode = 'timeline' | 'list' | 'week';
 
@@ -45,8 +45,8 @@ function getEventEndTime(event: Event, startDate: Date): Date {
   if (endTime) {
     return parseISO(endTime);
   }
-  // Default to 30 minutes if no end time
-  return new Date(startDate.getTime() + 30 * 60000);
+  // Default to 20 minutes if no end time to reduce horizontal squeezing
+  return new Date(startDate.getTime() + 20 * 60000);
 }
 
 export default function TimelineScreen() {
@@ -169,6 +169,8 @@ export default function TimelineScreen() {
               format24h={false}
               initialTime={initialTime}
               scrollToFirst={!isToday}
+              overlapEventsSpacing={8}
+              rightEdgeSpacing={24}
             />
           </View>
         )}

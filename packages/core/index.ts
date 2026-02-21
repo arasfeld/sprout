@@ -1,6 +1,23 @@
 // Define UUID type for clarity
 type UUID = string;
 
+// Sync types
+export type SyncStatus = 'local' | 'pending' | 'synced' | 'error';
+
+export interface SyncableRecord {
+  sync_status: SyncStatus;
+  created_at: string;
+  updated_at: string;
+  deleted_at: string | null;
+}
+
+export {
+  type LocalChild,
+  type RemoteChild,
+  type ResolvedChild,
+  resolveChild,
+} from './sync';
+
 // users table
 export interface User {
   id: UUID;
@@ -28,7 +45,7 @@ export interface ChildMembership {
   user_id: UUID;
   role: ChildMembershipRole;
   organization_id: UUID | null; // nullable
-  permissions: Record<string, any> | null; // jsonb, nullable
+  permissions: Record<string, unknown> | null; // jsonb, nullable
 }
 
 // organizations table
@@ -75,7 +92,7 @@ export interface Event {
   created_by: UUID;
   organization_id: UUID | null; // nullable
   type: EventType;
-  payload: Record<string, any>; // jsonb
+  payload: Record<string, unknown>; // jsonb
   visibility: EventVisibility;
   created_at: string; // timestamptz ISO string
 }

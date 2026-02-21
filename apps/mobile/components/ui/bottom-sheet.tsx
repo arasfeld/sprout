@@ -1,5 +1,6 @@
 import {
   BottomSheetBackdrop,
+  BottomSheetFlatList,
   BottomSheetModal,
   type BottomSheetModalProps,
   BottomSheetView,
@@ -78,6 +79,8 @@ export const BottomSheet = forwardRef<BottomSheetRef, Props>(
 );
 
 BottomSheet.displayName = 'BottomSheet';
+
+export { BottomSheetFlatList };
 
 const styles = StyleSheet.create({
   contentContainer: {

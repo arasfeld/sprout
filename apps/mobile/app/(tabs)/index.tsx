@@ -3,38 +3,43 @@ import { type Href, useRouter } from 'expo-router';
 import React from 'react';
 import {
   ActivityIndicator,
+  Pressable,
   RefreshControl,
   ScrollView,
   StyleSheet,
   View,
-  Pressable,
 } from 'react-native';
 import { SafeAreaView } from 'react-native-safe-area-context';
 
 import { useChildSelection } from '@/components/child-context';
 import { ChildSelector } from '@/components/child-selector';
+import { useSync } from '@/components/sync-context';
 import { Button } from '@/components/ui/button';
 import { Card } from '@/components/ui/card';
-import { IconSymbol } from '@/components/ui/icon-symbol';
+import { IconSymbol, type IconSymbolName } from '@/components/ui/icon-symbol';
 import { Text } from '@/components/ui/text';
 import { useChildren } from '@/hooks/queries/use-children';
 import { useEvents } from '@/hooks/queries/use-events';
-import { useRefreshOnFocus } from '@/hooks/use-refresh-on-focus';
 import { useTheme } from '@/hooks/use-theme';
 import { formatTimeHuman } from '@/utils/date';
 
-const QUICK_ACTIONS = [
+const QUICK_ACTIONS: {
+  id: string;
+  label: string;
+  icon: IconSymbolName;
+  color: string;
+}[] = [
   { id: 'feed', label: 'Feed', icon: 'drop.fill', color: '#3B82F6' },
   { id: 'sleep', label: 'Sleep', icon: 'moon.fill', color: '#6366F1' },
   { id: 'diaper', label: 'Diaper', icon: 'plus.circle.fill', color: '#10B981' },
   { id: 'growth', label: 'Growth', icon: 'chart.bar.fill', color: '#F59E0B' },
   { id: 'meds', label: 'Meds', icon: 'pills.fill', color: '#EF4444' },
   { id: 'activity', label: 'Activity', icon: 'figure.child', color: '#EC4899' },
-] as const;
+];
 
 const EVENT_CONFIG: Record<
   string,
-  { icon: string; color: string; label: string }
+  { icon: IconSymbolName; color: string; label: string }
 > = {
   activity: { icon: 'figure.child', color: '#EC4899', label: 'Activity' },
   diaper: { icon: 'plus.circle.fill', color: '#10B981', label: 'Diaper' },
@@ -56,7 +61,7 @@ function TimelineItem({ event, isLast }: { event: Event; isLast: boolean }) {
     <View style={styles.timelineItem}>
       <View style={styles.timelineLineContainer}>
         <View style={[styles.timelineIcon, { backgroundColor: config.color }]}>
-          <IconSymbol name={config.icon as any} size={16} color="white" />
+          <IconSymbol name={config.icon} size={16} color="white" />
         </View>
         {!isLast && (
           <View
@@ -86,18 +91,22 @@ function TimelineItem({ event, isLast }: { event: Event; isLast: boolean }) {
 }
 
 function renderEventDescription(event: Event) {
-  const payload = event.payload as any;
+  const payload = event.payload as Record<string, any>;
   const notes = payload.notes || payload.note || payload.text;
 
   switch (event.type) {
-    case 'meal':
+    case 'meal': {
       const mealParts = [];
-      if (payload.amount)
+      if (payload.amount) {
         mealParts.push(`${payload.amount}${payload.unit || ''}`);
-      if (payload.food_type) mealParts.push(payload.food_type);
+      }
+      if (payload.food_type) {
+        mealParts.push(payload.food_type);
+      }
       return mealParts.length > 0
         ? `Fed ${mealParts.join(' of ')}`
         : 'Feeding session';
+    }
     case 'diaper':
       return `${payload.status || 'Changed'}${notes ? `: ${notes}` : ''}`;
     case 'nap':
@@ -105,7 +114,9 @@ function renderEventDescription(event: Event) {
     case 'growth':
       return `Measured ${payload.value}${payload.unit || ''}`;
     case 'meds':
-      return `Gave ${payload.name || 'medication'}${payload.dosage ? ` (${payload.dosage})` : ''}`;
+      return `Gave ${payload.name || 'medication'}${
+        payload.dosage ? ` (${payload.dosage})` : ''
+      }`;
     default:
       return notes || 'Logged activity';
   }
@@ -119,28 +130,17 @@ export default function HomeScreen() {
     data: children = [],
     isLoading: isChildrenLoading,
     error: childrenError,
-    refetch: refetchChildren,
-    isRefetching: isRefetchingChildren,
   } = useChildren();
-
-  const {
-    data: events = [],
-    error: eventsError,
-    refetch: refetchEvents,
-    isRefetching: isRefetchingEvents,
-  } = useEvents(selectedChild?.id || null);
-
-  useRefreshOnFocus();
+  const { data: events = [], isLoading: isEventsLoading } = useEvents(
+    selectedChild?.id || null,
+  );
+  const { status: syncStatus, sync } = useSync();
 
   const isLoading = isSelectionLoading || isChildrenLoading;
-  const isRefetching = isRefetchingChildren || isRefetchingEvents;
-  const error = childrenError || eventsError;
+  const isRefreshing = syncStatus === 'syncing';
+  const error = childrenError;
 
-  const handleRefresh = async () => {
-    await Promise.all([refetchChildren(), refetchEvents()]);
-  };
-
-  if (isLoading && !isRefetching) {
+  if (isLoading && !isRefreshing) {
     return (
       <SafeAreaView
         style={[styles.container, { backgroundColor: colors.background }]}
@@ -166,7 +166,7 @@ export default function HomeScreen() {
           >
             {(error as Error).message}
           </Text>
-          <Button onPress={handleRefresh} style={{ marginTop: 16 }}>
+          <Button onPress={sync} style={{ marginTop: 16 }}>
             Try again
           </Button>
         </View>
@@ -185,8 +185,8 @@ export default function HomeScreen() {
         contentContainerStyle={styles.scrollContent}
         refreshControl={
           <RefreshControl
-            refreshing={isRefetching}
-            onRefresh={handleRefresh}
+            refreshing={isRefreshing}
+            onRefresh={sync}
             tintColor={colors.primary}
           />
         }
@@ -250,7 +250,7 @@ export default function HomeScreen() {
                           ]}
                         >
                           <IconSymbol
-                            name={(config.icon || 'info.circle.fill') as any}
+                            name={config.icon}
                             size={20}
                             color={config.color}
                           />
@@ -260,7 +260,7 @@ export default function HomeScreen() {
                             variant="bodySemibold"
                             style={styles.statusTitle}
                           >
-                            {config.label || 'Activity'}
+                            {config.label}
                           </Text>
                           <Text variant="muted" numberOfLines={1}>
                             {renderEventDescription(latestEvent)}
@@ -296,7 +296,7 @@ export default function HomeScreen() {
                       ]}
                     >
                       <IconSymbol
-                        name={action.icon as any}
+                        name={action.icon}
                         size={28}
                         color={action.color}
                       />
@@ -322,8 +322,21 @@ export default function HomeScreen() {
                   View all
                 </Button>
               </View>
-
-              {events.length === 0 ? (
+              {isEventsLoading && !isRefreshing ? (
+                <Card style={styles.timelinePlaceholder}>
+                  <ActivityIndicator color={colors.primary} />
+                </Card>
+              ) : events.length > 0 ? (
+                <Card style={styles.timelineCard}>
+                  {events.slice(0, 3).map((event: Event, index: number) => (
+                    <TimelineItem
+                      key={event.id}
+                      event={event}
+                      isLast={index === Math.min(events.length, 3) - 1}
+                    />
+                  ))}
+                </Card>
+              ) : (
                 <Card style={styles.timelinePlaceholder}>
                   <IconSymbol
                     name="clock.fill"
@@ -343,16 +356,6 @@ export default function HomeScreen() {
                     Use the quick actions above to log an event.
                   </Text>
                 </Card>
-              ) : (
-                <View style={styles.timelineList}>
-                  {events.slice(0, 5).map((event, index) => (
-                    <TimelineItem
-                      key={event.id}
-                      event={event}
-                      isLast={index === Math.min(events.length, 5) - 1}
-                    />
-                  ))}
-                </View>
               )}
             </View>
 
@@ -471,6 +474,9 @@ const styles = StyleSheet.create({
     opacity: 0.7,
     transform: [{ scale: 0.96 }],
   },
+  timelineCard: {
+    padding: 16,
+  },
   timelinePlaceholder: {
     padding: 32,
     alignItems: 'center',
@@ -478,12 +484,9 @@ const styles = StyleSheet.create({
     borderStyle: 'dashed',
     borderWidth: 1,
   },
-  timelineList: {
-    gap: 0,
-  },
   timelineItem: {
     flexDirection: 'row',
-    gap: 16,
+    gap: 12,
   },
   timelineLineContainer: {
     alignItems: 'center',
@@ -498,31 +501,30 @@ const styles = StyleSheet.create({
     zIndex: 1,
   },
   timelineLine: {
-    flex: 1,
     width: 2,
-    marginTop: -4,
-    marginBottom: -4,
+    flex: 1,
+    marginVertical: -4,
   },
   timelineContent: {
     flex: 1,
-    paddingBottom: 24,
+    paddingBottom: 20,
   },
   timelineHeader: {
     flexDirection: 'row',
     justifyContent: 'space-between',
     alignItems: 'center',
-    marginBottom: 4,
+    marginBottom: 2,
   },
   timelineTitle: {
-    fontSize: 16,
-    fontWeight: '700',
+    fontSize: 15,
+    fontWeight: '600',
   },
   timelineTime: {
     fontSize: 12,
   },
   timelineDescription: {
     fontSize: 14,
-    lineHeight: 20,
+    lineHeight: 18,
   },
   empty: {
     flex: 1,

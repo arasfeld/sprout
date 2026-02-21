@@ -14,7 +14,6 @@ import {
 } from 'react-native';
 import { SafeAreaView } from 'react-native-safe-area-context';
 
-import { useAuth } from '@/components/auth-context';
 import {
   DatePickerModal,
   type DatePickerModalRef,
@@ -40,7 +39,6 @@ import { formatDate, formatDateHuman } from '@/utils/date';
 
 export default function AddChildScreen() {
   const router = useRouter();
-  const { user } = useAuth();
   const theme = useTheme();
   const { colors } = theme;
   const styles = useMemo(() => createStyles(theme), [theme]);
@@ -111,11 +109,6 @@ export default function AddChildScreen() {
       return;
     }
 
-    if (!user?.id) {
-      setError('You must be signed in to add a child.');
-      return;
-    }
-
     try {
       const result = await createChild({
         name: nameTrimmed,
@@ -130,38 +123,7 @@ export default function AddChildScreen() {
     } catch (e) {
       setError((e as Error).message);
     }
-  }, [
-    name,
-    birthdate,
-    sex,
-    avatarUrl,
-    user?.id,
-    router,
-    createChild,
-    setChildId,
-  ]);
-
-  const handleBack = useCallback(() => {
-    router.back();
-  }, [router]);
-
-  if (!user) {
-    return (
-      <SafeAreaView
-        style={[styles.container, { backgroundColor: colors.background }]}
-        edges={['top']}
-      >
-        <View style={styles.centered}>
-          <Text variant="subtitle" style={{ color: colors.destructive }}>
-            You must be signed in to add a child.
-          </Text>
-          <Button onPress={handleBack} style={styles.backButton}>
-            Cancel
-          </Button>
-        </View>
-      </SafeAreaView>
-    );
-  }
+  }, [name, birthdate, sex, avatarUrl, router, createChild, setChildId]);
 
   return (
     <SafeAreaView

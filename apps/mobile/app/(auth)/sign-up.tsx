@@ -17,6 +17,7 @@ import {
   FieldLabel,
   FieldSet,
 } from '@/components/ui/field';
+import { IconSymbol } from '@/components/ui/icon-symbol';
 import { Input } from '@/components/ui/input';
 import { Text } from '@/components/ui/text';
 import { useTheme } from '@/hooks/use-theme';
@@ -56,9 +57,18 @@ export default function SignUpScreen() {
         style={styles.keyboard}
       >
         <View style={styles.content}>
-          <Text variant="title" style={styles.title}>
-            Create account
-          </Text>
+          <View style={styles.headerRow}>
+            <Text variant="title" style={styles.title}>
+              Create account
+            </Text>
+            <Pressable onPress={() => router.back()} style={styles.closeButton}>
+              <IconSymbol
+                name="xmark"
+                size={24}
+                color={colors.mutedForeground}
+              />
+            </Pressable>
+          </View>
           <FieldSet>
             <Field>
               <FieldLabel>Email</FieldLabel>
@@ -128,8 +138,18 @@ const styles = StyleSheet.create({
     paddingHorizontal: 24,
     paddingTop: 48,
   },
-  title: {
+  headerRow: {
+    flexDirection: 'row',
+    justifyContent: 'space-between',
+    alignItems: 'center',
     marginBottom: 24,
+  },
+  title: {
+    marginBottom: 0,
+  },
+  closeButton: {
+    padding: 8,
+    marginRight: -8,
   },
   button: {
     marginTop: 8,

@@ -12,7 +12,7 @@ import { Separator } from '@/components/ui/separator';
 
 export default function SettingsScreen() {
   const { mode, setMode, isLoading } = useThemePreferences();
-  const { signOut } = useAuth();
+  const { signOut, user } = useAuth();
   const router = useRouter();
 
   const themeOptions = useMemo(() => ['light', 'dark', 'system'] as const, []);
@@ -40,8 +40,12 @@ export default function SettingsScreen() {
 
   const handleSignOut = useCallback(async () => {
     await signOut();
-    router.replace('/(auth)/sign-in' as Href);
+    router.replace('/(tabs)' as Href);
   }, [signOut, router]);
+
+  const handleSignIn = useCallback(() => {
+    router.push('/(auth)/sign-in' as Href);
+  }, [router]);
 
   return (
     <SafeAreaView style={styles.container}>
@@ -60,7 +64,11 @@ export default function SettingsScreen() {
         <Separator style={styles.separator} />
         <FieldGroup>
           <FieldLegend>Account</FieldLegend>
-          <Button onPress={handleSignOut}>Sign out</Button>
+          {user ? (
+            <Button onPress={handleSignOut}>Sign out</Button>
+          ) : (
+            <Button onPress={handleSignIn}>Sign in or Create Account</Button>
+          )}
         </FieldGroup>
       </FieldSet>
     </SafeAreaView>

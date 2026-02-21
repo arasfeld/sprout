@@ -3,9 +3,15 @@ CREATE TABLE "public"."child_organizations" (
     "id" UUID NOT NULL DEFAULT gen_random_uuid(),
     "child_id" UUID NOT NULL,
     "organization_id" UUID NOT NULL,
+    "created_at" TIMESTAMPTZ NOT NULL DEFAULT CURRENT_TIMESTAMP,
+    "updated_at" TIMESTAMPTZ NOT NULL DEFAULT CURRENT_TIMESTAMP,
 
     CONSTRAINT "child_organizations_pkey" PRIMARY KEY ("id")
 );
+
+CREATE TRIGGER child_organizations_updated_at
+    BEFORE UPDATE ON "public"."child_organizations"
+    FOR EACH ROW EXECUTE FUNCTION public.update_updated_at();
 
 -- AddForeignKey
 ALTER TABLE "public"."child_organizations" ADD CONSTRAINT "child_organizations_child_id_fkey" FOREIGN KEY ("child_id") REFERENCES "public"."children"("id") ON DELETE RESTRICT ON UPDATE CASCADE;

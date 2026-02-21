@@ -1,12 +1,15 @@
-import type { Child } from '@sprout/core';
-import { BottomSheetFlatList } from '@gorhom/bottom-sheet';
 import { Image } from 'expo-image';
 import React, { useRef } from 'react';
 import { Pressable, StyleSheet, View } from 'react-native';
 import { useSafeAreaInsets } from 'react-native-safe-area-context';
+import type { Child } from '@sprout/core';
 
 import { useChildSelection } from '@/components/child-context';
-import { BottomSheet, type BottomSheetRef } from '@/components/ui/bottom-sheet';
+import {
+  BottomSheet,
+  BottomSheetFlatList,
+  type BottomSheetRef,
+} from '@/components/ui/bottom-sheet';
 import { IconSymbol } from '@/components/ui/icon-symbol';
 import {
   Item,
@@ -22,12 +25,10 @@ import { formatDateLongHuman } from '@/utils/date';
 
 export function ChildSelector() {
   const { colors } = useTheme();
+  const insets = useSafeAreaInsets();
   const { selectedChild, setChildId } = useChildSelection();
   const { data: children = [] } = useChildren();
   const bottomSheetRef = useRef<BottomSheetRef>(null);
-  const insets = useSafeAreaInsets();
-
-  if (children.length === 0) return null;
 
   return (
     <View style={styles.container}>
@@ -47,12 +48,14 @@ export function ChildSelector() {
           {selectedChild?.avatar_url ? (
             <Image
               source={{ uri: selectedChild.avatar_url }}
-              style={styles.avatarImage}
+              style={styles.image}
+              contentFit="cover"
+              transition={200}
             />
           ) : (
             <IconSymbol
               name="person.fill"
-              size={18}
+              size={20}
               color={colors.mutedForeground}
             />
           )}
@@ -87,7 +90,6 @@ export function ChildSelector() {
           )}
           renderItem={({ item }: { item: Child }) => (
             <Item
-              variant="default"
               onPress={() => {
                 setChildId(item.id);
                 bottomSheetRef.current?.close();
@@ -114,12 +116,14 @@ export function ChildSelector() {
                   {item.avatar_url ? (
                     <Image
                       source={{ uri: item.avatar_url }}
-                      style={styles.avatarImage}
+                      style={styles.image}
+                      contentFit="cover"
+                      transition={200}
                     />
                   ) : (
                     <IconSymbol
                       name="person.fill"
-                      size={14}
+                      size={24}
                       color={colors.mutedForeground}
                     />
                   )}
@@ -177,7 +181,7 @@ const styles = StyleSheet.create({
     alignItems: 'center',
     justifyContent: 'center',
   },
-  avatarImage: {
+  image: {
     width: '100%',
     height: '100%',
   },

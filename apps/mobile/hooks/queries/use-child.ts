@@ -1,45 +1,32 @@
 import type { Child } from '@sprout/core';
-import { useQuery } from '@tanstack/react-query';
+import { eq } from 'drizzle-orm';
+import { useLiveQuery } from 'drizzle-orm/expo-sqlite';
 
-import { queryKeys } from '@/constants/query-keys';
-import { supabase } from '@/services/supabase';
+import { db } from '@/services/db/client';
+import { children as childrenTable } from '@/services/db/schema';
+
+function rowToChild(row: typeof childrenTable.$inferSelect): Child {
+  return {
+    id: row.id,
+    name: row.name,
+    birthdate: row.birthdate,
+    sex: row.sex ?? null,
+    avatar_url: row.avatarUrl ?? null,
+    created_by: row.createdBy ?? '',
+  };
+}
 
 export function useChild(id: string) {
-  return useQuery({
-    queryKey: queryKeys.children.details(id),
-    queryFn: async () => {
-      const { data, error: fetchError } = await (
-        supabase as unknown as {
-          from: (table: string) => {
-            select: (cols: string) => {
-              eq: (
-                col: string,
-                val: string,
-              ) => {
-                single: () => Promise<{
-                  data: Child | null;
-                  error: { message: string } | null;
-                }>;
-              };
-            };
-          };
-        }
-      )
-        .from('children')
-        .select('*')
-        .eq('id', id)
-        .single();
+  const { data, error } = useLiveQuery(
+    db.select().from(childrenTable).where(eq(childrenTable.id, id)),
+    [id],
+  );
 
-      if (fetchError) {
-        throw new Error(fetchError.message);
-      }
+  const row = data?.[0];
 
-      if (!data) {
-        throw new Error('Child not found');
-      }
-
-      return data;
-    },
-    enabled: !!id,
-  });
+  return {
+    data: row ? rowToChild(row) : null,
+    isLoading: data === undefined,
+    error,
+  };
 }

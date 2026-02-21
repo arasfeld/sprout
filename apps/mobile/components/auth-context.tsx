@@ -8,6 +8,7 @@ import React, {
 } from 'react';
 
 import { supabase } from '@/services/supabase';
+import { syncEngine } from '@/services/sync/engine';
 
 type AuthContextValue = {
   user: User | null;
@@ -28,6 +29,7 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
       setSession(s);
       setUser(s?.user ?? null);
       setIsLoading(false);
+      syncEngine.setAuthenticated(!!s);
     });
 
     const {
@@ -35,13 +37,27 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
     } = supabase.auth.onAuthStateChange((_event, s) => {
       setSession(s);
       setUser(s?.user ?? null);
+      syncEngine.setAuthenticated(!!s);
     });
 
     return () => subscription.unsubscribe();
   }, []);
 
   const signOut = useCallback(async () => {
-    await supabase.auth.signOut();
+    try {
+      const { error } = await supabase.auth.signOut();
+      if (error) {
+        console.error('Error signing out:', error.message);
+      }
+    } catch (err) {
+      console.error('Unexpected error signing out:', err);
+    } finally {
+      // Even if there was an error, we want to clear the local state
+      // to avoid being stuck in a "logged in" state if the server is unreachable.
+      setSession(null);
+      setUser(null);
+      syncEngine.setAuthenticated(false);
+    }
   }, []);
 
   const value: AuthContextValue = {

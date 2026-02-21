@@ -2,9 +2,15 @@
 CREATE TABLE "public"."users" (
     "id" UUID NOT NULL, -- This will be a foreign key to auth.users.id
     "email" TEXT NOT NULL,
+    "created_at" TIMESTAMPTZ NOT NULL DEFAULT CURRENT_TIMESTAMP,
+    "updated_at" TIMESTAMPTZ NOT NULL DEFAULT CURRENT_TIMESTAMP,
 
     CONSTRAINT "users_pkey" PRIMARY KEY ("id")
 );
+
+CREATE TRIGGER users_updated_at
+    BEFORE UPDATE ON "public"."users"
+    FOR EACH ROW EXECUTE FUNCTION public.update_updated_at();
 
 -- Enable Row Level Security (RLS) on public.users
 ALTER TABLE "public"."users" ENABLE ROW LEVEL SECURITY;

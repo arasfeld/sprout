@@ -26,7 +26,20 @@ Events have a `visibility` field (`all`, `parents_only`, `org_only`) so staff ca
 
 ### No Custom API Server
 
-Clients talk directly to [Supabase](https://supabase.com). There is no Express/Fastify/Next.js API layer. Authorization is enforced at the database level via Postgres Row Level Security (RLS). This keeps the stack simple and reduces the surface area for bugs.
+Clients talk directly to [Supabase](https://supabase.com). There is no Express/Fastify/Next.js API layer. Authorization is enforced at the database level via Postgres Row Level Security (RLS).
+
+### Offline-First Mobile App
+
+The mobile app is **offline-first**: all reads and writes go through a local SQLite database (expo-sqlite + Drizzle ORM). A lightweight sync engine pushes local changes to Supabase and pulls remote changes on sign-in.
+
+```
+UI → useLiveQuery (Drizzle) → SQLite ← Sync Engine → Supabase
+```
+
+- **Reads** are always from SQLite — instant, works offline
+- **Writes** go to SQLite first with `sync_status = 'pending'`, then synced to Supabase
+- **Conflict resolution** uses last-write-wins on `updated_at`
+- **Auth is optional** — the app loads without signing in; sync activates on sign-in
 
 ### Supabase Stack
 
@@ -35,7 +48,7 @@ Clients talk directly to [Supabase](https://supabase.com). There is no Express/F
 | Supabase Auth     | User registration, login, sessions     |
 | Postgres + RLS    | Database with row-level access control |
 | Supabase Storage  | Photo uploads                          |
-| Supabase Realtime | Live timeline updates                  |
+| Supabase Realtime | Live timeline updates (future)         |
 | Edge Functions    | Server-side logic when needed (future) |
 
 ### Data Model (Summary)
@@ -63,25 +76,25 @@ apps/
 packages/
   config-eslint/       → Shared ESLint configurations
   config-typescript/   → Shared TypeScript configurations
-  core/                → Shared TypeScript types, generated from DB (future)
-  supabase/            → Supabase client, migrations, local dev (active)
+  core/                → Shared domain types + sync resolver
+  supabase/            → Supabase client, migrations, sync pull helpers
 ```
-
-Currently active: `apps/mobile`, config packages, and `packages/supabase`. The mobile app uses Supabase Auth (sign up / sign in) and is session-aware.
 
 ## Tech Stack
 
-| Layer          | Technology                                       |
-| -------------- | ------------------------------------------------ |
-| Mobile app     | Expo SDK 54, React Native 0.81, React 19         |
-| Routing        | Expo Router (file-based)                         |
-| Language       | TypeScript (strict mode)                         |
-| Monorepo       | Turborepo + pnpm workspaces                      |
-| Design system  | shadcn-inspired tokens + `useTheme()` hook       |
-| Backend        | Supabase (Postgres, Auth, Storage, Realtime)     |
-| Client caching | TanStack Query (optional, alongside Supabase)    |
-| Linting        | ESLint with TypeScript, React, and Turbo plugins |
-| Formatting     | Prettier                                         |
+| Layer              | Technology                                         |
+| ------------------ | -------------------------------------------------- |
+| Mobile app         | Expo SDK 54, React Native 0.81, React 19           |
+| Routing            | Expo Router (file-based)                           |
+| Language           | TypeScript (strict mode)                           |
+| Monorepo           | Turborepo + pnpm workspaces                        |
+| Design system      | shadcn-inspired tokens + `useTheme()` hook         |
+| Local database     | expo-sqlite + Drizzle ORM                          |
+| Backend            | Supabase (Postgres, Auth, Storage, Realtime)       |
+| Sync               | Custom lightweight sync engine (push/pull)         |
+| Client caching     | TanStack Query (mutations + loading state)         |
+| Linting            | ESLint with TypeScript, React, and Turbo plugins   |
+| Formatting         | Prettier                                           |
 
 ## Getting Started
 

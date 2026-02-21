@@ -8,6 +8,7 @@ import { GestureHandlerRootView } from 'react-native-gesture-handler';
 
 import { AuthProvider } from '@/components/auth-context';
 import { ChildProvider } from '@/components/child-context';
+import { SyncProvider } from '@/components/sync-context';
 import { ThemeProvider as AppThemeProvider } from '@/components/theme-context';
 import { useTheme } from '@/hooks/use-theme';
 import { onAppStateChange, queryClient } from '@/services/query-client';
@@ -68,9 +69,11 @@ export function Providers({ children }: { children: React.ReactNode }) {
         <GestureHandlerRootView style={{ flex: 1 }}>
           <BottomSheetModalProvider>
             <AuthProvider>
-              <ChildProvider>
-                <NavigationThemeWrapper>{children}</NavigationThemeWrapper>
-              </ChildProvider>
+              <SyncProvider>
+                <ChildProvider>
+                  <NavigationThemeWrapper>{children}</NavigationThemeWrapper>
+                </ChildProvider>
+              </SyncProvider>
             </AuthProvider>
           </BottomSheetModalProvider>
         </GestureHandlerRootView>
